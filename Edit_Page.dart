@@ -1,12 +1,9 @@
 import 'dart:io';
-
-
 import 'package:boxtia_inventory/Functions/DB_Functions.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Product_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
 import 'package:boxtia_inventory/Screens/Stock_Page.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
@@ -32,7 +29,7 @@ class _Edit_ItemState extends State<Edit_Item> {
 
   String _selectedCategory = 'Mobiles';
   final _CatList = ['Mobile', 'Tablet', 'Watch', 'Accessories'];
-
+  
   var _selectedBrand = 'Brands';
   final _brandList = [
     'Samsung',
@@ -60,10 +57,22 @@ class _Edit_ItemState extends State<Edit_Item> {
     _PriceController.clear();
   }
 
+
+  @override
+void initState() {
+  super.initState();
+  _selectedCategory = widget.item.CategoryM;
+  _selectedBrand = widget.item.BrandM;
+  pic = widget.item.ItemPicM;
+  fetchAndSetItemData(); 
+}
+
+
   void fetchAndSetItemData() async {
     List<itemModel> items = await getAllItems();
     if (items.isNotEmpty) {
       setState(() {
+        pic = widget.item.ItemPicM;
         _selectedCategory = widget.item.CategoryM;
         _selectedBrand = widget.item.BrandM;
         _INameController.text = widget.item.ItemNameM;
@@ -225,6 +234,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                             .copyWith(canvasColor: Colors.white),
                         child: Container(
                           child: DropdownButtonFormField(
+                              value: _selectedCategory,
                               dropdownColor: Colors.blueAccent,
                               iconEnabledColor: Colors.white,
                               iconSize: 35,
@@ -269,6 +279,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                             .copyWith(canvasColor: Colors.white),
                         child: Container(
                           child: DropdownButtonFormField(
+                              value: _selectedBrand,
                               dropdownColor: Colors.blueAccent,
                               iconEnabledColor: Colors.white,
                               iconSize: 35,
