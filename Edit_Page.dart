@@ -11,6 +11,7 @@ import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
 import 'package:fluttericon/zocial_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Edit_Item extends StatefulWidget {
@@ -28,8 +29,7 @@ class _Edit_ItemState extends State<Edit_Item> {
   final TextEditingController _PriceController = TextEditingController();
 
   String _selectedCategory = 'Mobiles';
-  final _CatList = ['Mobile', 'Tablet', 'Watch', 'Accessories'];
-  
+  final _CatList = ['Mobiles', 'Tablet', 'Watch', 'Accessories'];
   var _selectedBrand = 'Brands';
   final _brandList = [
     'Samsung',
@@ -57,16 +57,25 @@ class _Edit_ItemState extends State<Edit_Item> {
     _PriceController.clear();
   }
 
-
   @override
-void initState() {
-  super.initState();
-  _selectedCategory = widget.item.CategoryM;
-  _selectedBrand = widget.item.BrandM;
-  pic = widget.item.ItemPicM;
-  fetchAndSetItemData(); 
-}
-
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.item.CategoryM;
+    _selectedBrand = widget.item.BrandM;
+    pic = widget.item.ItemPicM;
+    fetchAndSetItemData();
+    _fetchBusinessName();
+  }
+  String _businessName = '';
+  void _fetchBusinessName() async {
+    final box = await Hive.openBox<userModel>('boxtiadb');
+    List<userModel> users = box.values.toList();
+    if (users.isNotEmpty) {
+      setState(() {
+        _businessName = users[0].bussinessName;
+      });
+    }
+  }
 
   void fetchAndSetItemData() async {
     List<itemModel> items = await getAllItems();
@@ -157,11 +166,11 @@ void initState() {
             title: Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
-                "BOXTIA",
-                style: GoogleFonts.mogra(
+                _businessName.isNotEmpty ? _businessName : "BOXTIA",
+                style: GoogleFonts.goldman(
                   textStyle: const TextStyle(
                       color: Colors.cyanAccent,
-                      fontSize: 30,
+                      fontSize: 25,
                       letterSpacing: 1,
                       fontWeight: FontWeight.bold),
                 ),
@@ -178,8 +187,7 @@ void initState() {
                       "EDIT ITEM",
                       style: GoogleFonts.mogra(
                         textStyle: const TextStyle(
-                            decorationColor: Colors.tealAccent,
-                            color: Colors.tealAccent,
+                            color: Colors.white,
                             fontSize: 20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
