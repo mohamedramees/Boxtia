@@ -1,6 +1,8 @@
 import 'package:boxtia_inventory/Screens/Home_Page.dart';
+import 'package:boxtia_inventory/services/auth_service.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -12,6 +14,7 @@ class Splash_Screen extends StatefulWidget {
 }
 
 class _Splash_ScreenState extends State<Splash_Screen> {
+   final AuthService _authService = AuthService();
   final String hiveBoxName = 'userBox';
   final String saveKeyName = 'userLoggedIn';
 
@@ -19,7 +22,37 @@ class _Splash_ScreenState extends State<Splash_Screen> {
   void initState() {
     super.initState();
     checkUserLoggedIn();
+    _checkAuth();
   }
+
+
+  Future<void> _checkAuth() async {
+    bool authenticated = await _authService.authenticate();
+    if (!authenticated) {
+      _showAuthFailedDialog();
+    }
+  }
+
+  void _showAuthFailedDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Authentication Failed'),
+        content: Text('Unable to authenticate. The app will close now.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+
+              SystemNavigator.pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
