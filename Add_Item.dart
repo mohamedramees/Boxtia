@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:boxtia_inventory/Functions/DB_Functions.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
-import 'package:boxtia_inventory/Screens/Product_page.dart';
+import 'package:boxtia_inventory/Screens/Product_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
+import 'package:boxtia_inventory/Screens/Stock_Page.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
@@ -11,6 +13,7 @@ import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
 import 'package:fluttericon/zocial_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Add_Item extends StatefulWidget {
@@ -19,12 +22,24 @@ class Add_Item extends StatefulWidget {
 }
 
 class _Add_ItemState extends State<Add_Item> {
+  
   final TextEditingController _INameController = TextEditingController();
   final TextEditingController _ColorController = TextEditingController();
   final TextEditingController _PriceController = TextEditingController();
 
   String _selectedCategory = 'Mobiles';
-  final _CatList = ['Mobiles', 'Tablets', 'Watches', 'Accessories'];
+  final _CatList = ['Mobiles', 'Tablet', 'Watch', 'Accessories'];
+  String _businessName = '';
+  var _selectedBrand = 'Brands';
+  final _brandList = [
+    'Samsung',
+    'Apple',
+    'Google',
+    'Nothing',
+    'Mi',
+    'Oppo',
+    'Vivo'
+  ];
 
   String _ItemName = "Item Name";
   String _Color = "Color";
@@ -41,20 +56,39 @@ class _Add_ItemState extends State<Add_Item> {
   void _priceClear() {
     _PriceController.clear();
   }
+    @override
+  void initState() {
+    super.initState();
+    _fetchBusinessName();
+  }
+
+    void _fetchBusinessName() async {
+    final box = await Hive.openBox<userModel>('boxtiadb');
+    List<userModel> users = box.values.toList();
+    if (users.isNotEmpty) {
+      setState(() {
+        _businessName = users[0].bussinessName;
+      });
+    }
+  }
 
   Future<void> _saveItem(BuildContext context) async {
     String _iCategory = _selectedCategory;
+    String _iBrand = _selectedBrand;
     String _Iname = _INameController.text;
     String _IColor = _ColorController.text;
     String _Iprice = _PriceController.text;
 
     if (_iCategory.isNotEmpty &&
+        _iBrand.isNotEmpty &&
         _Iname.isNotEmpty &&
         _IColor.isNotEmpty &&
+        pic!.isNotEmpty&&
         _Iprice.isNotEmpty) {
       // List<itemModel> existingItems = await getAllItems();
       itemModel newItem = itemModel(
         CategoryM: _iCategory,
+        BrandM: _iBrand,
         ItemNameM: _Iname,
         ColorM: _IColor,
         PriceM: _Iprice,
@@ -66,16 +100,21 @@ class _Add_ItemState extends State<Add_Item> {
         SnackBar(
           backgroundColor: Colors.green,
           shape: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none),
           duration: Duration(seconds: 1),
           content: Text('Item data saved successfully!'),
         ),
       );
 
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => Product_Page()));
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Product_Page()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill in all fields.')),
+        
+        SnackBar(
+          duration: Duration(seconds: 1),
+          content: Text('Please fill in all fields.')),
       );
     }
   }
@@ -85,7 +124,8 @@ class _Add_ItemState extends State<Add_Item> {
 
   Future<void> pickImage() async {
     final imagePicker = ImagePicker();
-    final XFile? pickedImg = await imagePicker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedImg =
+        await imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImg != null) {
       setState(() {
         pic = pickedImg.path;
@@ -107,11 +147,11 @@ class _Add_ItemState extends State<Add_Item> {
             title: Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
-                "BOXTIA",
-                style: GoogleFonts.mogra(
+                 _businessName.isNotEmpty ? _businessName : "BOXTIA",
+                style: GoogleFonts.goldman(
                   textStyle: const TextStyle(
                       color: Colors.cyanAccent,
-                      fontSize: 30,
+                      fontSize:25,
                       letterSpacing: 1,
                       fontWeight: FontWeight.bold),
                 ),
@@ -128,9 +168,8 @@ class _Add_ItemState extends State<Add_Item> {
                       "ADD ITEM",
                       style: GoogleFonts.mogra(
                         textStyle: const TextStyle(
-                            
                             decorationColor: Colors.tealAccent,
-                            color: Colors.tealAccent,
+                            color: Colors.white,
                             fontSize: 20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
@@ -153,8 +192,9 @@ class _Add_ItemState extends State<Add_Item> {
                       borderRadius: BorderRadius.circular(15),
                       child: pic == null
                           ? Image.asset(
-                              color: Colors.amber,
-                              'lib/asset/samsung galaxy s24 Ultra.jpg',
+                            
+                              // color: Colors.amber,
+                              'lib/asset/no-image.png',
                             )
                           : Image.file(
                               alignment: Alignment.center,
@@ -176,11 +216,13 @@ class _Add_ItemState extends State<Add_Item> {
                     SizedBox(
                       height: 20,
                     ),
-                    //DROP DOWN
+
+                    //DROP DOWN CATEGORY
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: Theme(
-                        data: Theme.of(context).copyWith(canvasColor: Colors.white),
+                        data: Theme.of(context)
+                            .copyWith(canvasColor: Colors.white),
                         child: Container(
                           child: DropdownButtonFormField(
                               dropdownColor: Colors.blueAccent,
@@ -205,7 +247,8 @@ class _Add_ItemState extends State<Add_Item> {
                                     value: e,
                                     child: Text(
                                       e,
-                                      style: TextStyle(color: Colors.cyanAccent[100]),
+                                      style: TextStyle(
+                                          color: Colors.cyanAccent[100]),
                                     ));
                               }).toList(),
                               onChanged: (value) {
@@ -216,10 +259,59 @@ class _Add_ItemState extends State<Add_Item> {
                         ),
                       ),
                     ),
+
+                    //DROP DOWN BRAND
+
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Theme(
+                        data: Theme.of(context)
+                            .copyWith(canvasColor: Colors.white),
+                        child: Container(
+                          child: DropdownButtonFormField(
+                              dropdownColor: Colors.blueAccent,
+                              iconEnabledColor: Colors.white,
+                              iconSize: 35,
+                              hint: Text(
+                                'Brand',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              decoration: InputDecoration(
+                                helperStyle: TextStyle(color: Colors.white),
+                                hoverColor: Colors.blue,
+                                filled: true,
+                                fillColor: Color.fromARGB(255, 17, 125, 213),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                              ),
+                              items: _brandList.map((e) {
+                                return DropdownMenuItem(
+                                    value: e,
+                                    child: Text(
+                                      e,
+                                      style: TextStyle(
+                                          color: Colors.cyanAccent[100]),
+                                    ));
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedBrand = value as String;
+                                });
+                              }),
+                        ),
+                      ),
+                    ),
+
                     //ITEM NAME
+
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(16),
+                        ],
                         controller: _INameController,
                         style: TextStyle(
                           color: Colors.cyanAccent[100],
@@ -331,7 +423,7 @@ class _Add_ItemState extends State<Add_Item> {
               backgroundColor: Color.fromARGB(255, 21, 127, 213),
             ),
           ),
-          bottomNavigationBar: Padding(
+        bottomNavigationBar: Padding(
             padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
             child: ClipPath(
               clipper: ShapeBorderClipper(
@@ -347,56 +439,49 @@ class _Add_ItemState extends State<Add_Item> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            FontAwesome5.boxes,
-                            size: 30,
+                    IconButton(
+                      tooltip: 'profile',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Profile_Page(),
                           ),
-                          color: Colors.white,
-                        ),
-                      ],
+                        );
+                      },
+                      icon: Icon(
+                        Typicons.user_outline,
+                        size: 32, // Reduced size
+                      ),
+                      color: Colors.white,
                     ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Profile_Page(),
-                              ),
-                            );
-                          },
-                          icon: Icon(
-                            Typicons.user_outline,
-                            size: 32,
-                          ),
-                          color: Colors.white,
-                        ),
-                      ],
+                    IconButton(
+                      tooltip: 'stock',
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Stock_Page()));
+                      },
+                      icon: Icon(
+                        FontAwesome5.boxes,
+                        size: 30,
+                      ),
+                      color: Colors.white,
                     ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (context) => Product_Page()));
-                          },
-                          icon: Icon(
-                            Zocial.paypal,
-                            size: 30,
-                          ),
-                          color: Colors.white,
-                        ),
-                      ],
+                    IconButton(
+                      tooltip: 'product',
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Product_Page()));
+                      },
+                      icon: Icon(
+                        Zocial.paypal,
+                        size: 30, // Reduced size
+                      ),
+                      color: Colors.white,
                     ),
                   ],
                 ),
