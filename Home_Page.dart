@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Add_Item.dart';
-import 'package:boxtia_inventory/Screens/Product_page.dart';
+import 'package:boxtia_inventory/Screens/Product_Page.dart';
+
 import 'package:boxtia_inventory/Screens/Stock_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
 import 'package:boxtia_inventory/services/auth_service.dart';
@@ -25,12 +26,10 @@ class Home_Page extends StatefulWidget {
 class _Home_PageState extends State<Home_Page> {
   String _businessName = '';
 
-  final AuthService _authService = AuthService();
-
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+
     _fetchBusinessName();
   }
 
@@ -42,33 +41,6 @@ class _Home_PageState extends State<Home_Page> {
         _businessName = users[0].bussinessName;
       });
     }
-  }
-
-  Future<void> _checkAuth() async {
-    bool authenticated = await _authService.authenticate();
-    if (!authenticated) {
-      _showAuthFailedDialog();
-    }
-  }
-
-  void _showAuthFailedDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Authentication Failed'),
-        content: Text('Unable to authenticate. The app will close now.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-
-              SystemNavigator.pop();
-            },
-            child: Text('OK'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -133,247 +105,212 @@ class _Home_PageState extends State<Home_Page> {
       "     Out Of\n   Stock"
     ];
 
-    return Container(
-      color: Colors.blue,
-      child: SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            shadowColor: Colors.transparent,
-            elevation: 10,
-            backgroundColor: Color.fromARGB(255, 21, 127, 213),
-            automaticallyImplyLeading: false,
-            title: Padding(
-              padding: const EdgeInsets.only(
-                top: 8.0,
-              ),
-              child: Text(
-                _businessName.isNotEmpty ? _businessName : "BOXTIA",
-                style: GoogleFonts.mogra(
-                  textStyle: const TextStyle(
-                      color: Colors.cyanAccent,
-                      fontSize: 30,
-                      letterSpacing: 1,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            actions: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  //ALERT
-                  IconButton(
-                    onPressed: () {
-                      _showLogoutDialog();
-                    },
-                    icon: Icon(
-                      MfgLabs.logout,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10.0),
-                    child: Text(
-                      "HOME",
-                      style: GoogleFonts.mogra(
-                        textStyle: const TextStyle(
-                            decorationColor: Colors.tealAccent,
-                            color: Colors.tealAccent,
-                            fontSize: 20,
-                            letterSpacing: 1,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            toolbarHeight: 85,
-          ),
-          body: Padding(
-            padding: const EdgeInsets.only(right: 8, left: 8),
-            child: GridView.builder(
-              itemCount: 7,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10.0,
-                mainAxisSpacing: 10.0,
-                childAspectRatio: 1.0,
-              ),
-              itemBuilder: (context, index) {
-                return Card(
-                  color: Colors.lightBlueAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  child: ClipRRect(
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Container(
-                        color: Color.fromARGB(255, 12, 121, 211),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 25.0, left: 15),
-                              child: SizedBox(
-                                width: 50,
-                                height: 50,
-                                child: brightenedImages[index],
-                              ),
-
-                              // Icon(
-                              //   GIcon[index],
-                              //   size: 35,
-                              //   color: Colors.white,
-                              // ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              GText[index],
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.mogra(
-                                textStyle: const TextStyle(
-                                    color: Colors.tealAccent,
-                                    fontSize: 16,
-                                    letterSpacing: 1,
-                                    fontWeight: FontWeight.w400),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(top: 76.0),
-            child: FloatingActionButton(
-              splashColor: Colors.lightBlueAccent,
-              elevation: 20,
-              onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => Add_Item()),
-                // );
-              },
-              child: Icon(
-                MfgLabs.plus,
-                size: 25,
-              ),
+    return WillPopScope(
+      onWillPop: () async{
+        exit(0);
+      },
+      child: Container(
+        color: Colors.blue,
+        child: SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+              shadowColor: Colors.transparent,
+              elevation: 10,
               backgroundColor: Color.fromARGB(255, 21, 127, 213),
-            ),
-          ),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
-            child: ClipPath(
-              clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+              automaticallyImplyLeading: false,
+              title: Padding(
+                padding: const EdgeInsets.only(
+                  top: 8.0,
+                ),
+                child: Text(
+                  _businessName.isNotEmpty ? _businessName : "BOXTIA",
+                  style: GoogleFonts.goldman(
+                    textStyle: const TextStyle(
+                        color: Colors.cyanAccent,
+                        fontSize: 25,
+                        letterSpacing: 1,
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-              child: BottomAppBar(
-                shadowColor: Colors.transparent,
-                shape: const CircularNotchedRectangle(),
-                notchMargin: 10.0,
-                color: Color.fromARGB(255, 21, 127, 213),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+              actions: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Stock_Page()));
-                          },
-                          icon: Icon(
-                            FontAwesome5.boxes,
-                            size: 30,
-                          ),
-                          color: Colors.white,
-                        ),
-                        // Text(
-                        //   'Stock',
-                        //   style: GoogleFonts.mogra(
-                        //     textStyle: const TextStyle(
-                        //       color: Colors.cyanAccent,
-                        //       fontSize: 12,
-                        //       letterSpacing: 1,
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
+                    //ALERT
+                    IconButton(
+                      onPressed: () {
+                        _showLogoutDialog();
+                      },
+                      icon: Icon(
+                        MfgLabs.logout,
+                        color: Colors.white,
+                      ),
                     ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Profile_Page(),
-                              ),
-                            );
-                          },
-                          icon: Icon(
-                            Typicons.user_outline,
-                            size: 32, // Reduced size
-                          ),
-                          color: Colors.white,
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10.0),
+                      child: Text(
+                        "HOME",
+                        style: GoogleFonts.mogra(
+                          textStyle: const TextStyle(
+                              decorationColor: Colors.tealAccent,
+                              color: Colors.white,
+                              fontSize: 20,
+                              letterSpacing: 1,
+                              fontWeight: FontWeight.bold),
                         ),
-                        // Text(
-                        //   'Profile',
-                        //   style: GoogleFonts.mogra(
-                        //     textStyle: const TextStyle(
-                        //       color: Colors.cyanAccent,
-                        //       fontSize: 12,
-                        //       letterSpacing: 1,
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (context) => Product_Page()));
-                          },
-                          icon: Icon(
-                            Zocial.paypal,
-                            size: 30, // Reduced size
-                          ),
-                          color: Colors.white,
-                        ),
-                        // Text(
-                        //   'Product',
-                        //   style: GoogleFonts.mogra(
-                        //     textStyle: const TextStyle(
-                        //       color: Colors.cyanAccent,
-                        //       fontSize: 12,
-                        //       letterSpacing: 1,
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
+                      ),
                     ),
                   ],
+                ),
+              ],
+              toolbarHeight: 85,
+            ),
+            body: Padding(
+              padding: const EdgeInsets.only(right: 8, left: 8),
+              child: GridView.builder(
+                itemCount: 7,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10.0,
+                  mainAxisSpacing: 10.0,
+                  childAspectRatio: 1.0,
+                ),
+                itemBuilder: (context, index) {
+                  return Card(
+                    color: Colors.lightBlueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: ClipRRect(
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Container(
+                          color: Color.fromARGB(255, 12, 121, 211),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 25.0, left: 15),
+                                child: SizedBox(
+                                  width: 50,
+                                  height: 50,
+                                  child: brightenedImages[index],
+                                ),
+
+                                // Icon(
+                                //   GIcon[index],
+                                //   size: 35,
+                                //   color: Colors.white,
+                                // ),
+                              ),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Text(
+                                GText[index],
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.mogra(
+                                  textStyle: const TextStyle(
+                                      color: Colors.tealAccent,
+                                      fontSize: 16,
+                                      letterSpacing: 1,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.endDocked,
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.only(top: 76.0),
+              child: FloatingActionButton(
+                tooltip: 'add item',
+                splashColor: Colors.lightBlueAccent,
+                elevation: 20,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Add_Item()),
+                  );
+                },
+                child: Icon(
+                  MfgLabs.plus,
+                  size: 25,
+                ),
+                backgroundColor: Color.fromARGB(255, 21, 127, 213),
+              ),
+            ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
+              child: ClipPath(
+                clipper: ShapeBorderClipper(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: BottomAppBar(
+                  shadowColor: Colors.transparent,
+                  shape: const CircularNotchedRectangle(),
+                  notchMargin: 10.0,
+                  color: Color.fromARGB(255, 21, 127, 213),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        tooltip: 'profile',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Profile_Page(),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Typicons.user_outline,
+                          size: 32, // Reduced size
+                        ),
+                        color: Colors.white,
+                      ),
+                      IconButton(
+                        tooltip: 'stock',
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Stock_Page()));
+                        },
+                        icon: Icon(
+                          FontAwesome5.boxes,
+                          size: 30,
+                        ),
+                        color: Colors.white,
+                      ),
+                      IconButton(
+                        tooltip: 'product',
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Product_Page()));
+                        },
+                        icon: Icon(
+                          Zocial.paypal,
+                          size: 30, // Reduced size
+                        ),
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -454,7 +391,7 @@ class _Home_PageState extends State<Home_Page> {
                           height: 50,
                           child: ElevatedButton(
                             style: ButtonStyle(
-                                backgroundColor: MaterialStatePropertyAll(
+                                backgroundColor: WidgetStatePropertyAll(
                               Color.fromRGBO(145, 39, 64, 1),
                             )),
                             onPressed: () {
