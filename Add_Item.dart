@@ -22,28 +22,43 @@ class Add_Item extends StatefulWidget {
 }
 
 class _Add_ItemState extends State<Add_Item> {
-  
   final TextEditingController _INameController = TextEditingController();
   final TextEditingController _ColorController = TextEditingController();
   final TextEditingController _PriceController = TextEditingController();
+  final TextEditingController _newBrandController = TextEditingController();
+  final TextEditingController _countController = TextEditingController();
 
   String _selectedCategory = 'Mobiles';
   final _CatList = ['Mobiles', 'Tablet', 'Watch', 'Accessories'];
   String _businessName = '';
   var _selectedBrand = 'Brands';
+
   final _brandList = [
+    'Add Brand',
     'Samsung',
     'Apple',
     'Google',
     'Nothing',
     'Mi',
     'Oppo',
-    'Vivo'
+    'Vivo',
   ];
+  bool _isAddingBrand = false;
+
+  void _addNewBrand() {
+    if (_newBrandController.text.isNotEmpty) {
+      setState(() {
+        _brandList.add(_newBrandController.text);
+        _newBrandController.clear();
+        _isAddingBrand = false;
+      });
+    }
+  }
 
   String _ItemName = "Item Name";
   String _Color = "Color";
   String _Price = "Price";
+  String _addNewBrandName = "Enter New Brand";
 
   void _InameClear() {
     _INameController.clear();
@@ -56,13 +71,14 @@ class _Add_ItemState extends State<Add_Item> {
   void _priceClear() {
     _PriceController.clear();
   }
-    @override
+
+  @override
   void initState() {
     super.initState();
     _fetchBusinessName();
   }
 
-    void _fetchBusinessName() async {
+  void _fetchBusinessName() async {
     final box = await Hive.openBox<userModel>('boxtiadb');
     List<userModel> users = box.values.toList();
     if (users.isNotEmpty) {
@@ -78,12 +94,14 @@ class _Add_ItemState extends State<Add_Item> {
     String _Iname = _INameController.text;
     String _IColor = _ColorController.text;
     String _Iprice = _PriceController.text;
+    String _countI = _countController.text;
 
     if (_iCategory.isNotEmpty &&
+        _iBrand != 'Add Brand' &&
         _iBrand.isNotEmpty &&
         _Iname.isNotEmpty &&
         _IColor.isNotEmpty &&
-        pic!.isNotEmpty&&
+        pic!.isNotEmpty &&
         _Iprice.isNotEmpty) {
       // List<itemModel> existingItems = await getAllItems();
       itemModel newItem = itemModel(
@@ -93,6 +111,7 @@ class _Add_ItemState extends State<Add_Item> {
         ColorM: _IColor,
         PriceM: _Iprice,
         ItemPicM: pic ?? '',
+        CountM: _countI,
       );
 
       await addItemF(newItem);
@@ -111,10 +130,9 @@ class _Add_ItemState extends State<Add_Item> {
           .push(MaterialPageRoute(builder: (context) => Product_Page()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        
         SnackBar(
-          duration: Duration(seconds: 1),
-          content: Text('Please fill in all fields.')),
+            duration: Duration(seconds: 1),
+            content: Text('Please fill in all fields.')),
       );
     }
   }
@@ -147,12 +165,12 @@ class _Add_ItemState extends State<Add_Item> {
             title: Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
-                 _businessName.isNotEmpty ? _businessName : "BOXTIA",
+                _businessName.isNotEmpty ? _businessName : "BOXTIA",
                 style: GoogleFonts.goldman(
                   textStyle: const TextStyle(
                       color: Colors.cyanAccent,
-                      fontSize:25,
-                      letterSpacing: 1,
+                      fontSize: 25,
+                      letterSpacing: -1,
                       fontWeight: FontWeight.bold),
                 ),
               ),
@@ -192,7 +210,6 @@ class _Add_ItemState extends State<Add_Item> {
                       borderRadius: BorderRadius.circular(15),
                       child: pic == null
                           ? Image.asset(
-                            
                               // color: Colors.amber,
                               'lib/asset/no-image.png',
                             )
@@ -269,40 +286,88 @@ class _Add_ItemState extends State<Add_Item> {
                             .copyWith(canvasColor: Colors.white),
                         child: Container(
                           child: DropdownButtonFormField(
-                              dropdownColor: Colors.blueAccent,
-                              iconEnabledColor: Colors.white,
-                              iconSize: 35,
-                              hint: Text(
-                                'Brand',
-                                style: TextStyle(color: Colors.white),
+                            dropdownColor: Colors.blueAccent,
+                            iconEnabledColor: Colors.white,
+                            iconSize: 35,
+                            hint: Text(
+                              'Brand',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            decoration: InputDecoration(
+                              helperStyle: TextStyle(color: Colors.white),
+                              hoverColor: Colors.blue,
+                              filled: true,
+                              fillColor: Color.fromARGB(255, 17, 125, 213),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(15.0),
                               ),
-                              decoration: InputDecoration(
-                                helperStyle: TextStyle(color: Colors.white),
-                                hoverColor: Colors.blue,
-                                filled: true,
-                                fillColor: Color.fromARGB(255, 17, 125, 213),
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                              ),
-                              items: _brandList.map((e) {
-                                return DropdownMenuItem(
-                                    value: e,
-                                    child: Text(
-                                      e,
-                                      style: TextStyle(
-                                          color: Colors.cyanAccent[100]),
-                                    ));
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedBrand = value as String;
-                                });
-                              }),
+                            ),
+                            items: _brandList.map((e) {
+                              return DropdownMenuItem(
+                                  value: e,
+                                  child: Text(
+                                    e,
+                                    style: e == 'Add Brand'
+                                        ? TextStyle(
+                                            fontSize: 15.0,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          )
+                                        : TextStyle(
+                                            color: Colors.cyanAccent[100],
+                                          ),
+                                  ));
+                            }).toList(),
+                            onChanged: (newValue) {
+                              setState(() {
+                                _selectedBrand = newValue as String;
+                                if (_selectedBrand == 'Add Brand') {
+                                  _isAddingBrand = true;
+                                } else {
+                                  _isAddingBrand = false;
+                                }
+                              });
+                            },
+                          ),
                         ),
                       ),
                     ),
+                    //ADDING NEW BRAND
+
+                    if (_isAddingBrand)
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextField(
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(10),
+                              ],
+                              style: TextStyle(
+                                color: Colors.cyanAccent[100],
+                              ),
+                              controller: _newBrandController,
+                              decoration: InputDecoration(
+                                  hintText: _addNewBrandName,
+                                  filled: true,
+                                  fillColor: Color.fromARGB(255, 17, 125, 213),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: _addNewBrand,
+                                  ),
+                                  hintStyle: TextStyle(color: Colors.white),
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(15),
+                                  )),
+                            ),
+                          ),
+                        ],
+                      ),
 
                     //ITEM NAME
 
@@ -345,23 +410,24 @@ class _Add_ItemState extends State<Add_Item> {
                           color: Colors.cyanAccent[100],
                         ),
                         decoration: InputDecoration(
-                            hintText: _Color,
-                            fillColor: Color.fromARGB(255, 17, 125, 213),
-                            filled: true,
-                            hintStyle: TextStyle(color: Colors.white),
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                _colorClear();
-                              },
-                              icon: Icon(
-                                Icons.clear,
-                                color: Colors.white,
-                              ),
+                          hintText: _Color,
+                          fillColor: Color.fromARGB(255, 17, 125, 213),
+                          filled: true,
+                          hintStyle: TextStyle(color: Colors.white),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              _colorClear();
+                            },
+                            icon: Icon(
+                              Icons.clear,
+                              color: Colors.white,
                             ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(15),
-                            )),
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
                       ),
                     ),
                     //PRICE
@@ -371,31 +437,69 @@ class _Add_ItemState extends State<Add_Item> {
                         keyboardType: TextInputType.number,
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(6),
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
                         controller: _PriceController,
                         style: TextStyle(
                           color: Colors.cyanAccent[100],
                         ),
                         decoration: InputDecoration(
-                            hintText: _Price,
-                            fillColor: Color.fromARGB(255, 17, 125, 213),
-                            filled: true,
-                            hintStyle: TextStyle(color: Colors.white),
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                _priceClear();
-                              },
-                              icon: Icon(
-                                Icons.clear,
-                                color: Colors.white,
-                              ),
+                          hintText: _Price,
+                          fillColor: Color.fromARGB(255, 17, 125, 213),
+                          filled: true,
+                          hintStyle: TextStyle(color: Colors.white),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              _priceClear();
+                            },
+                            icon: Icon(
+                              Icons.clear,
+                              color: Colors.white,
                             ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(15),
-                            )),
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
                       ),
                     ),
+                    //COUNT
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 134),
+                      child: TextFormField(
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        controller: _countController,
+                        style: TextStyle(
+                          color: Colors.cyanAccent[100],
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(2),
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        decoration: InputDecoration(
+                          prefixIcon: IconButton(
+                              highlightColor: Colors.lightBlueAccent,
+                              color: Colors.white,
+                              onPressed: () {},
+                              icon: Icon(FontAwesome5.minus)),
+                          suffixIcon: IconButton(
+                            focusColor: Colors.amberAccent,
+                            highlightColor: Colors.lightBlueAccent,
+                            color: Colors.white,
+                            onPressed: () {},
+                            icon: Icon(FontAwesome5.plus),
+                          ),
+                          fillColor: Color.fromARGB(255, 17, 125, 213),
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -423,7 +527,7 @@ class _Add_ItemState extends State<Add_Item> {
               backgroundColor: Color.fromARGB(255, 21, 127, 213),
             ),
           ),
-        bottomNavigationBar: Padding(
+          bottomNavigationBar: Padding(
             padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
             child: ClipPath(
               clipper: ShapeBorderClipper(
