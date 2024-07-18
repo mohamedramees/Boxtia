@@ -189,240 +189,242 @@ class _Product_PageState extends State<Product_Page> {
             //BODY BUTTON
 
             body: Scaffold(
-                floatingActionButtonLocation:
-                    FloatingActionButtonLocation.endTop,
-                floatingActionButton: Column(
-                  children: [
-                    //SEARCH BAR
-                    AnimSearchBar(
-                      animationDurationInMilli: 300,
-                      autoFocus: true,
-                      style: TextStyle(color: Colors.white),
-                      textFieldIconColor: Colors.white,
-                      textFieldColor: Colors.blue,
-                      suffixIcon: Icon(
-                        RpgAwesome.x_mark,
-                        color: Colors.white,
-                      ),
-                      rtl: true,
-                      width: 400,
-                      color: Color.fromARGB(255, 21, 127, 213),
-                      searchIconColor: Colors.white,
-                      textController: textController,
-                      onSuffixTap: () {
-                        textController.clear();
-                        _searchKeyword.value = '';
-                      },
-                      onSubmitted: (String value) {
-                        _searchKeyword.value = value;
-                      },
+              floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+              floatingActionButton: Column(
+                children: [
+                  //SEARCH BAR
+                  AnimSearchBar(
+                    animationDurationInMilli: 300,
+                    autoFocus: true,
+                    style: TextStyle(color: Colors.white),
+                    textFieldIconColor: Colors.white,
+                    textFieldColor: Colors.blue,
+                    suffixIcon: Icon(
+                      RpgAwesome.x_mark,
+                      color: Colors.white,
                     ),
-                    //FILTER BUTTON
+                    rtl: true,
+                    width: 400,
+                    color: Color.fromARGB(255, 21, 127, 213),
+                    searchIconColor: Colors.white,
+                    textController: textController,
+                    onSuffixTap: () {
+                      textController.clear();
+                      _searchKeyword.value = '';
+                    },
+                    onSubmitted: (String value) {
+                      _searchKeyword.value = value;
+                    },
+                  ),
+                  //FILTER BUTTON
 
-                    Padding(
-                      padding: const EdgeInsets.only(left: 360.0, top: 10),
-                      child: FloatingActionButton(
-                        key: _menuKey,
-                        heroTag: "filterButton",
-                        backgroundColor: Color.fromARGB(255, 21, 127, 213),
-                        onPressed: () {
-                          menu.show(widgetKey: _menuKey);
-                        },
-                        child: Icon(
-                          Elusive.filter,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 360.0, top: 10),
+                    child: FloatingActionButton(
+                      key: _menuKey,
+                      heroTag: "filterButton",
+                      backgroundColor: Color.fromARGB(255, 21, 127, 213),
+                      onPressed: () {
+                        menu.show(widgetKey: _menuKey);
+                      },
+                      child: Icon(
+                        Elusive.filter,
                       ),
                     ),
-                  ],
-                ),
-                //MAIN BODY
-                body: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: ValueListenableBuilder<String>(
-                        valueListenable: _selectedCategory,
-                        builder: (context, selectedCategory, child) {
-                          return ValueListenableBuilder<String>(
-                            valueListenable: _searchKeyword,
-                            builder: (context, searchKeyword, child) {
-                              print(
-                                  'Current Selected Category: $selectedCategory');
-                              print('Current Search Keyword: $searchKeyword');
-                              final filteredItems = _items.where((item) {
-                                final categoryMatch =
-                                    selectedCategory.toLowerCase() == 'all' ||
-                                        item.CategoryM.toLowerCase() ==
-                                            selectedCategory.toLowerCase();
-                                final keywordMatch =
-                                    item.ItemNameM.toLowerCase()
-                                        .contains(searchKeyword.toLowerCase());
-                                return categoryMatch && keywordMatch;
-                              }).toList();
-                              print(
-                                  'Filtered Items Count: ${filteredItems.length}');
+                  ),
+                ],
+              ),
+              //MAIN BODY
+              body: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: ValueListenableBuilder<String>(
+                  valueListenable: _selectedCategory,
+                  builder: (context, selectedCategory, child) {
+                    return ValueListenableBuilder<String>(
+                      valueListenable: _searchKeyword,
+                      builder: (context, searchKeyword, child) {
+                        print('Current Selected Category: $selectedCategory');
+                        print('Current Search Keyword: $searchKeyword');
+                        final filteredItems = _items.where((item) {
+                          final categoryMatch =
+                              selectedCategory.toLowerCase() == 'all' ||
+                                  item.CategoryM.toLowerCase() ==
+                                      selectedCategory.toLowerCase();
+                          final keywordMatch = item.ItemNameM.toLowerCase()
+                              .contains(searchKeyword.toLowerCase());
+                          return categoryMatch && keywordMatch;
+                        }).toList();
+                        print('Filtered Items Count: ${filteredItems.length}');
 
-                              //LIST
+                        if (filteredItems.isEmpty) {
+                          return Center(
+                            child: Text('NO ITERMS !!!',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            ),
+                          );
+                        }
+                        //LIST
 
-                              return ListView.builder(
-                                itemCount: filteredItems.length,
-                                itemBuilder: (context, index) {
-                                  final item = filteredItems[index];
+                        return ListView.builder(
+                          itemCount: filteredItems.length,
+                          itemBuilder: (context, index) {
+                            final item = filteredItems[index];
 
-                                  return Card(
-                                    shadowColor: Colors.lightBlueAccent,
-                                    surfaceTintColor: Colors.lightBlueAccent,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 5,
-                                        vertical: 10,
+                            return Card(
+                              shadowColor: Colors.lightBlueAccent,
+                              surfaceTintColor: Colors.lightBlueAccent,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                  vertical: 10,
+                                ),
+                                child: ListTile(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Item_Page(
+                                                item: filteredItems[index],
+                                              )),
+                                    ).then((_) {
+                                      // Refresh data after editing
+                                      _fetchItems();
+                                    });
+                                  },
+                                  //IMAGE
+
+                                  leading: SizedBox(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      // ignore: unnecessary_null_comparison
+                                      child: item.ItemPicM == null
+                                          ? Image.asset(
+                                              'lib/asset/no-image.png',
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Image.file(
+                                              alignment: Alignment.center,
+                                              File(item.ItemPicM),
+                                              width: 90,
+                                              height: 100,
+                                              fit: BoxFit.contain,
+                                            ),
+                                    ),
+                                  ),
+                                  //TITLE NAME
+
+                                  title: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.ItemNameM,
+                                        style: GoogleFonts.josefinSans(
+                                          textStyle: const TextStyle(
+                                              decorationColor:
+                                                  Colors.tealAccent,
+                                              color: Colors.blue,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: -2,
+                                              fontSize: 19),
+                                        ),
                                       ),
-                                      child: ListTile(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => Item_Page(
+                                      SizedBox(
+                                        height: 15,
+                                      )
+                                    ],
+                                  ),
+
+                                  subtitle: Row(
+                                    children: [
+                                      //RUPEE
+                                      Text(
+                                        '\u{20B9}',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      //PRICE
+                                      Text(
+                                        '${item.PriceM}',
+                                        style: TextStyle(
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+
+                                      Expanded(
+                                        child: Align(
+                                          alignment: Alignment.centerRight,
+                                          child: PopupMenuButton<int>(
+                                            onSelected: (value) {
+                                              if (value == 1) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Edit_Item(
                                                       item:
                                                           filteredItems[index],
-                                                    )),
-                                          ).then((_) {
-                                            // Refresh data after editing
-                                            _fetchItems();
-                                          });
-                                        },
-                                        //IMAGE
-
-                                        leading: SizedBox(
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                            // ignore: unnecessary_null_comparison
-                                            child: item.ItemPicM == null
-                                                ? Image.asset(
-                                                    'lib/asset/no-image.png',
-                                                    width: 100,
-                                                    height: 100,
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : Image.file(
-                                                    alignment: Alignment.center,
-                                                    File(item.ItemPicM),
-                                                    width: 90,
-                                                    height: 100,
-                                                    fit: BoxFit.contain,
+                                                      index: index,
+                                                    ),
                                                   ),
-                                          ),
-                                        ),
-                                        //TITLE NAME
-
-                                        title: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              item.ItemNameM,
-                                              style: GoogleFonts.josefinSans(
-                                                textStyle: const TextStyle(
-                                                    decorationColor:
-                                                        Colors.tealAccent,
-                                                    color: Colors.blue,
-                                                    fontWeight: FontWeight.bold,
-                                                    letterSpacing: -2,
-                                                    fontSize: 19),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 15,
-                                            )
-                                          ],
-                                        ),
-
-                                        subtitle: Row(
-                                          children: [
-                                            
-                                            //RUPEE
-                                            Text(
-                                              '\u{20B9}',
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            //PRICE
-                                            Text(
-                                              '${item.PriceM}',
-                                              style: TextStyle(
-                                                  color: Colors.green,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-
-                                            Expanded(
-                                              
-                                              child: Align(
-                                                alignment: Alignment.centerRight,
-                                                child: PopupMenuButton<int>(
-                                                  onSelected: (value) {
-                                                    if (value == 1) {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              Edit_Item(
-                                                            item: filteredItems[
-                                                                index],
-                                                            index: index,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    } else if (value == 2) {
-                                                      deleteItem(index);
-                                                    }
-                                                  },
-                                                  itemBuilder:
-                                                      (BuildContext context) => [
-                                                    PopupMenuItem<int>(
-                                                      value: 1,
-                                                      child: Row(
-                                                        children: [
-                                                          Icon(
-                                                            FontAwesome.pencil,
-                                                            size: 20,
-                                                            color: Colors.cyan,
-                                                          ),
-                                                          SizedBox(width: 8),
-                                                          Text("Edit"),
-                                                        ],
-                                                      ),
+                                                );
+                                              } else if (value == 2) {
+                                                deleteItem(index);
+                                              }
+                                            },
+                                            itemBuilder:
+                                                (BuildContext context) => [
+                                              PopupMenuItem<int>(
+                                                value: 1,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      FontAwesome.pencil,
+                                                      size: 20,
+                                                      color: Colors.cyan,
                                                     ),
-                                                    PopupMenuItem<int>(
-                                                      value: 2,
-                                                      child: Row(
-                                                        children: [
-                                                          Icon(
-                                                            Entypo.trash,
-                                                            size: 18,
-                                                            color: Colors.redAccent,
-                                                          ),
-                                                          SizedBox(width: 8),
-                                                          Text("Delete"),
-                                                        ],
-                                                      ),
-                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text("Edit"),
                                                   ],
                                                 ),
                                               ),
-                                            )
-                                          ],
+                                              PopupMenuItem<int>(
+                                                value: 2,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Entypo.trash,
+                                                      size: 18,
+                                                      color: Colors.redAccent,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text("Delete"),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          );
-                        },
-                        ),
-                        ),
-                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
             //FLOATING ACTION BUTTON
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
