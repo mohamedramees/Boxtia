@@ -23,6 +23,7 @@ class Stock_Page extends StatefulWidget {
 class _Stock_PageState extends State<Stock_Page> {
   List<itemModel> _items = [];
   String _businessName = '';
+  bool _isAscending = true;
 
   @override
   void initState() {
@@ -46,6 +47,19 @@ class _Stock_PageState extends State<Stock_Page> {
     List<itemModel> items = box.values.toList();
     setState(() {
       _items = items;
+      _sortItems();
+    });
+  }
+
+  void _sortItems() {
+    setState(() {
+      _items.sort((a, b) {
+        int countA = int.tryParse(a.CountM) ?? 0;
+        int countB = int.tryParse(b.CountM) ?? 0;
+        return _isAscending
+            ? countA.compareTo(countB)
+            : countB.compareTo(countA);
+      });
     });
   }
 
@@ -101,29 +115,29 @@ class _Stock_PageState extends State<Stock_Page> {
                                   color: Color.fromARGB(255, 7, 236, 118),
                                 ),
                               ),
+                              onSelected: (value) {
+                                setState(() {
+                                  _isAscending = value == 1;
+                                  _sortItems();
+                                });
+                              },
                               itemBuilder: (BuildContext context) => [
                                     PopupMenuItem(
                                       value: 1,
                                       child: Row(
                                         children: [
-                                          IconButton(
-                                            onPressed: () {},
-                                            icon: Icon(
-                                                FontAwesome5.sort_amount_up),
-                                          ),
-                                          Text('Ascending '),
+                                          Icon(FontAwesome5.sort_amount_up_alt),
+                                          SizedBox(width: 10),
+                                          Text('Ascending'),
                                         ],
                                       ),
                                     ),
                                     PopupMenuItem(
-                                      value: 1,
+                                      value: 2,
                                       child: Row(
                                         children: [
-                                          IconButton(
-                                            onPressed: () {},
-                                            icon: Icon(
-                                                FontAwesome5.sort_amount_up),
-                                          ),
+                                          Icon(FontAwesome5.sort_amount_down),
+                                          SizedBox(width: 10),
                                           Text('Descending'),
                                         ],
                                       ),
@@ -287,7 +301,7 @@ class _Stock_PageState extends State<Stock_Page> {
                       IconButton(
                         tooltip: 'stock',
                         onPressed: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => Stock_Page()));
