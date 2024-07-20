@@ -22,12 +22,14 @@ class SalesPage extends StatefulWidget {
 class _SalesPageState extends State<SalesPage> {
   final Map<int, TextEditingController> _countControllers = {};
   final Map<int, int> _quantities = {};
+  
   List<itemModel> _items = [];
   String _businessName = '';
 
   @override
   void dispose() {
-    _countControllers.forEach((key, controller) => controller.dispose());
+    // Dispose each controller
+    _countControllers.values.forEach((controller) => controller.dispose());
     super.dispose();
   }
 
@@ -53,26 +55,18 @@ class _SalesPageState extends State<SalesPage> {
     List<itemModel> items = box.values.toList();
     setState(() {
       _items = items;
-      for (var i = 0; i < _items.length; i++) {
-        _quantities[i] = int.tryParse(items[i].CountM)??0;
-        _countControllers[i] = TextEditingController(text: items[i].CountM);
+      // Initialize controllers and quantities for each item
+      for (int i = 0; i < _items.length; i++) {
+        _countControllers[i] = TextEditingController(text: '0');
+        _quantities[i] = 0;
       }
     });
   }
 
-  void _incrementQuantity(int index) {
+  void _updateQuantity(int index, int delta) {
     setState(() {
-      _quantities[index] = (_quantities[index] ?? 0) + 1;
+      _quantities[index] = (_quantities[index] ?? 0) + delta;
       _countControllers[index]?.text = _quantities[index].toString();
-    });
-  }
-
-  void _decrementQuantity(int index) {
-    setState(() {
-      if (_quantities[index]! > 0) {
-        _quantities[index] = (_quantities[index] ?? 0) - 1;
-        _countControllers[index]?.text = _quantities[index].toString();
-      }
     });
   }
 
@@ -133,6 +127,9 @@ class _SalesPageState extends State<SalesPage> {
               ),
               itemBuilder: (context, index) {
                 final item = _items[index];
+                final controller = _countControllers[index];
+                final quantity = _quantities[index] ?? 0;
+                
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
@@ -146,6 +143,7 @@ class _SalesPageState extends State<SalesPage> {
                             padding: const EdgeInsets.only(
                                 top: 9.0, left: 10, right: 10),
                             child: SizedBox(
+                              // IMAGE
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
                                 child: Image.file(
@@ -157,6 +155,7 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                             ),
                           ),
+                          // ITEM NAME
                           Text(
                             item.ItemNameM,
                             style: GoogleFonts.robotoSlab(
@@ -168,6 +167,7 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                             ),
                           ),
+                          // PRICE
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -187,9 +187,7 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                             ],
                           ),
-                          SizedBox(
-                            width: 5,
-                          ),
+                          SizedBox(width: 5),
                           Center(
                             child: Row(
                               children: [
@@ -197,20 +195,15 @@ class _SalesPageState extends State<SalesPage> {
                                 Padding(
                                   padding: const EdgeInsets.all(8),
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      SizedBox(
-                                        width: 4,
-                                      ),
+                                      SizedBox(width: 4),
                                       Container(
                                         width: 40,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color:
-                                              Color.fromARGB(255, 17, 125, 213),
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Color.fromARGB(255, 17, 125, 213),
                                         ),
                                         child: IconButton(
                                           icon: Icon(
@@ -219,72 +212,63 @@ class _SalesPageState extends State<SalesPage> {
                                             size: 22,
                                           ),
                                           onPressed: () {
-                                            _decrementQuantity(index);
+                                            if (quantity > 0) {
+                                              _updateQuantity(index, -1);
+                                            }
                                           },
                                         ),
                                       ),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
+                                      SizedBox(width: 5),
                                       // COUNT TEXT FIELD
                                       Container(
                                         width: 70,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color:
-                                              Color.fromARGB(255, 17, 125, 213),
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Color.fromARGB(255, 17, 125, 213),
                                         ),
                                         child: Center(
                                           child: TextFormField(
                                             inputFormatters: [
-                                              LengthLimitingTextInputFormatter(
-                                                  3),
+                                              LengthLimitingTextInputFormatter(3),
                                             ],
                                             style: GoogleFonts.robotoSlab(
                                               color: Colors.white,
                                               fontSize: 23,
                                               fontWeight: FontWeight.bold,
                                             ),
-                                            controller: _countControllers[index],
+                                            controller: controller,
                                             keyboardType: TextInputType.number,
                                             textAlign: TextAlign.center,
                                             decoration: InputDecoration(
                                               border: InputBorder.none,
-                                              contentPadding:
-                                                  EdgeInsets.only(bottom: 10),
+                                              contentPadding: EdgeInsets.only(bottom: 10),
                                             ),
                                             onChanged: (value) {
                                               setState(() {
-                                                _quantities[index] =
-                                                    int.tryParse(value) ?? 0;
+                                                _quantities[index] = int.tryParse(value) ?? 0;
                                               });
                                             },
                                           ),
                                         ),
                                       ),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
+                                      SizedBox(width: 5),
                                       // COUNT ++
                                       Container(
                                         width: 40,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color:
-                                              Color.fromARGB(255, 17, 125, 213),
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Color.fromARGB(255, 17, 125, 213),
                                         ),
                                         child: IconButton(
                                           icon: Icon(
                                             FontAwesome5.plus,
                                             color: Colors.white,
-                                            size: 22, // Adjusted size
+                                            size: 22,
                                           ),
                                           onPressed: () {
-                                            _incrementQuantity(index);
+                                            _updateQuantity(index, 1);
                                           },
                                         ),
                                       ),
