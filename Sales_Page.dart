@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:boxtia_inventory/Functions/DB_Functions.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Product_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
@@ -22,13 +23,12 @@ class SalesPage extends StatefulWidget {
 class _SalesPageState extends State<SalesPage> {
   final Map<int, TextEditingController> _countControllers = {};
   final Map<int, int> _quantities = {};
-  
+
   List<itemModel> _items = [];
   String _businessName = '';
 
   @override
   void dispose() {
-    // Dispose each controller
     _countControllers.values.forEach((controller) => controller.dispose());
     super.dispose();
   }
@@ -55,7 +55,6 @@ class _SalesPageState extends State<SalesPage> {
     List<itemModel> items = box.values.toList();
     setState(() {
       _items = items;
-      // Initialize controllers and quantities for each item
       for (int i = 0; i < _items.length; i++) {
         _countControllers[i] = TextEditingController(text: '0');
         _quantities[i] = 0;
@@ -64,9 +63,16 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   void _updateQuantity(int index, int delta) {
+    final currentItem = _items[index];
+    int maxCount = int.parse(currentItem.CountM);
+
     setState(() {
-      _quantities[index] = (_quantities[index] ?? 0) + delta;
-      _countControllers[index]?.text = _quantities[index].toString();
+      int newQuantity = (_quantities[index] ?? 0) + delta;
+
+      if (newQuantity >= 0 && newQuantity <= maxCount) {
+        _quantities[index] = newQuantity;
+        _countControllers[index]?.text = newQuantity.toString();
+      }
     });
   }
 
@@ -123,13 +129,13 @@ class _SalesPageState extends State<SalesPage> {
               itemCount: _items.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: .8,
+                childAspectRatio: .7,
               ),
               itemBuilder: (context, index) {
                 final item = _items[index];
                 final controller = _countControllers[index];
                 final quantity = _quantities[index] ?? 0;
-                
+int maxCount = int.parse(item.CountM);
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
@@ -137,11 +143,11 @@ class _SalesPageState extends State<SalesPage> {
                     color: Color.fromARGB(218, 255, 255, 255),
                     child: ClipRRect(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(
-                                top: 9.0, left: 10, right: 10),
+                                top: 9, left: 10, right: 10),
                             child: SizedBox(
                               // IMAGE
                               child: ClipRRect(
@@ -161,11 +167,14 @@ class _SalesPageState extends State<SalesPage> {
                             style: GoogleFonts.robotoSlab(
                               textStyle: const TextStyle(
                                 color: Colors.blue,
-                                fontSize: 18,
+                                fontSize: 20,
                                 letterSpacing: -1,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                          ),
+                          SizedBox(
+                            height: 5,
                           ),
                           // PRICE
                           Row(
@@ -177,14 +186,55 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                               Text(
                                 item.PriceM,
-                                style: GoogleFonts.robotoSlab(
+                                style: GoogleFonts.arvo(
                                   textStyle: const TextStyle(
-                                    color: Color.fromARGB(255, 24, 115, 190),
+                                    color: Color.fromARGB(255, 4, 76, 136),
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          //COUNT
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'count =',
+                                style: GoogleFonts.robotoSlab(
+                                  textStyle: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 17,
+                                    letterSpacing: -1,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 12,
+                              ),
+                              ValueListenableBuilder(
+                                  valueListenable: boxtiaitemdb,
+                                  builder: (context, value, child) {
+                                    return Text(
+                                      value.isEmpty
+                                          ? item.CountM
+                                          : value.first.CountM.toString(),
+                                      style: GoogleFonts.arvo(
+                                        textStyle: const TextStyle(
+                                          color:
+                                              Color.fromARGB(255, 12, 73, 216),
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    );
+                                  })
                             ],
                           ),
                           SizedBox(width: 5),
@@ -195,15 +245,18 @@ class _SalesPageState extends State<SalesPage> {
                                 Padding(
                                   padding: const EdgeInsets.all(8),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
                                     children: [
                                       SizedBox(width: 4),
                                       Container(
                                         width: 40,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          color: Color.fromARGB(255, 17, 125, 213),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color:
+                                              Color.fromARGB(255, 17, 125, 213),
                                         ),
                                         child: IconButton(
                                           icon: Icon(
@@ -224,13 +277,16 @@ class _SalesPageState extends State<SalesPage> {
                                         width: 70,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          color: Color.fromARGB(255, 17, 125, 213),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color:
+                                              Color.fromARGB(255, 17, 125, 213),
                                         ),
                                         child: Center(
                                           child: TextFormField(
                                             inputFormatters: [
-                                              LengthLimitingTextInputFormatter(3),
+                                              LengthLimitingTextInputFormatter(
+                                                  3),
                                             ],
                                             style: GoogleFonts.robotoSlab(
                                               color: Colors.white,
@@ -242,12 +298,18 @@ class _SalesPageState extends State<SalesPage> {
                                             textAlign: TextAlign.center,
                                             decoration: InputDecoration(
                                               border: InputBorder.none,
-                                              contentPadding: EdgeInsets.only(bottom: 10),
+                                              contentPadding:
+                                                  EdgeInsets.only(bottom: 10),
                                             ),
                                             onChanged: (value) {
+                                                  int newValue = int.tryParse(value) ?? 0;
+                                            if (newValue > maxCount) {
+                                              controller?.text = maxCount.toString();
+                                            } else {
                                               setState(() {
-                                                _quantities[index] = int.tryParse(value) ?? 0;
+                                                _quantities[index] = newValue;
                                               });
+                                            }
                                             },
                                           ),
                                         ),
@@ -258,8 +320,10 @@ class _SalesPageState extends State<SalesPage> {
                                         width: 40,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          color: Color.fromARGB(255, 17, 125, 213),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color:
+                                              Color.fromARGB(255, 17, 125, 213),
                                         ),
                                         child: IconButton(
                                           icon: Icon(
