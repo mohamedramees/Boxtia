@@ -5,6 +5,7 @@ import 'package:boxtia_inventory/Screens/Product_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
 import 'package:boxtia_inventory/Screens/Stock_Page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
 import 'package:fluttericon/zocial_icons.dart';
@@ -21,12 +22,40 @@ class BillingPage extends StatefulWidget {
 }
 
 class _BillingPageState extends State<BillingPage> {
+  final TextEditingController _customerNameController = TextEditingController();
+  final TextEditingController _customerNumberController =
+      TextEditingController();
+
+  final FocusNode _focusNodeName = FocusNode();
+  final FocusNode _focusNodeNumber = FocusNode();
+
+  bool _isFocusedName = false;
+  bool _isFocusedNumber = false;
+
+  void _clearCname() {
+    _customerNameController.clear();
+  }
+
+  void _clearCnumber() {
+    _customerNumberController.clear();
+  }
+
   String _businessName = '';
 
   @override
   void initState() {
     super.initState();
     _fetchBusinessName();
+    _focusNodeName.addListener(() {
+      setState(() {
+        _isFocusedName = _focusNodeName.hasFocus;
+      });
+    });
+    _focusNodeNumber.addListener(() {
+      setState(() {
+        _isFocusedNumber = _focusNodeNumber.hasFocus;
+      });
+    });
   }
 
   void _fetchBusinessName() async {
@@ -39,8 +68,24 @@ class _BillingPageState extends State<BillingPage> {
     }
   }
 
+  String capitalizeEachWord(String input) {
+    // ignore: unnecessary_null_comparison
+    if (input == null || input.isEmpty) return input;
+
+    return input
+        .split(' ') // Split the string into words
+        .map((word) => word.isEmpty
+            ? word
+            : word[0].toUpperCase() +
+                word
+                    .substring(1)
+                    .toLowerCase()) // Capitalize the first letter and make the rest lowercase
+        .join(' '); // Join the words back together with spaces
+  }
+
   @override
   Widget build(BuildContext context) {
+    double allTotal = 0.0;
     return Container(
       color: Colors.blue,
       child: SafeArea(
@@ -99,9 +144,16 @@ class _BillingPageState extends State<BillingPage> {
                     itemCount: widget.selectedItems.length,
                     itemBuilder: (context, index) {
                       final item = widget.selectedItems[index];
+
                       // PRICE AND QUANTITY CALCULATION
+
                       double price = double.tryParse(item.PriceM) ?? 0.0;
                       double total = price * item.QuantityM;
+
+                      // TOTAL PRICE
+
+                      allTotal += total; 
+                      
                       return Card(
                         child: ListTile(
                           leading: item.ItemPicM.isNotEmpty
@@ -152,7 +204,9 @@ class _BillingPageState extends State<BillingPage> {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(width: 30,),
+                                  SizedBox(
+                                    width: 30,
+                                  ),
                                   Column(
                                     children: [
                                       Text(
@@ -190,22 +244,6 @@ class _BillingPageState extends State<BillingPage> {
                                   )
                                 ],
                               ),
-
-                              // Row(mainAxisAlignment: MainAxisAlignment.end,
-                              //       children: [
-                              //         Text('\u{20B9}'),
-                              //         Text(
-                              //     '$total',
-                              //       style: GoogleFonts.arvo(
-                              //         textStyle: const TextStyle(
-                              //           color: Color.fromARGB(255, 4, 76, 136),
-                              //           fontSize: 15,
-                              //           fontWeight: FontWeight.bold,
-                              //         ),
-                              //       ),
-                              //     ),
-                              //       ],
-                              //     ),
                             ],
                           ),
                         ),
@@ -213,15 +251,118 @@ class _BillingPageState extends State<BillingPage> {
                     },
                   ),
                 ),
-                SizedBox(
-                  height: 10,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Total : ',
+                      style: GoogleFonts.arvo(
+                        textStyle: const TextStyle(
+                          color: Color.fromARGB(255, 4, 76, 136),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '$allTotal',
+                      style: GoogleFonts.arvo(
+                        textStyle: const TextStyle(
+                          color: Color.fromARGB(255, 4, 76, 136),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                SizedBox(
+                  height: 20,
+                ),
+
+                //CUSTOMER DETAILES
+
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.only(right: 200.0),
+                  child: Text(
+                    'Customer Details',
+                    style: GoogleFonts.arvo(
+                      textStyle: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 15,
+                          letterSpacing: -1,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+
+                //CUSTOMER NAME
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
                   child: TextFormField(
+                    textCapitalization: TextCapitalization.words,
+                    focusNode: _focusNodeName,
+                    style: TextStyle(
+                      color: Colors.green,
+                    ),
+                    keyboardType: TextInputType.name,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(12),
+                    ],
+                    controller: _customerNameController,
                     decoration: InputDecoration(
-                      labelText: 'Enter some text',
-                      border: OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.blue)),
+                      labelText: 'Enter Customer Name Here',
+                      suffixIcon: _isFocusedName
+                          ? IconButton(
+                              onPressed: _clearCname,
+                              icon: Icon(
+                                Icons.clear,
+                                color: Colors.red,
+                              ),
+                            )
+                          : null,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: Colors.green),
+                      ),
+                    ),
+                  ),
+                ),
+
+                //CUSTOMER NUMBER
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: TextFormField(
+                    focusNode: _focusNodeNumber,
+                    style: TextStyle(
+                      color: Colors.green,
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(10),
+                    ],
+                    controller: _customerNumberController,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.blue)),
+                      labelText: 'Enter Customer Number Here',
+                      suffixIcon: _isFocusedNumber
+                          ? IconButton(
+                              onPressed: _clearCnumber,
+                              icon: Icon(
+                                Icons.clear,
+                                color: Colors.red,
+                              ),
+                            )
+                          : null,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: Colors.green),
+                      ),
                     ),
                   ),
                 ),
@@ -234,9 +375,7 @@ class _BillingPageState extends State<BillingPage> {
             child: FloatingActionButton(
               splashColor: Colors.lightBlueAccent,
               elevation: 20,
-              onPressed: () {
-                // Implement the action for the SELL button
-              },
+              onPressed: () {},
               child: Text(
                 'SELL',
                 style: GoogleFonts.arvo(
