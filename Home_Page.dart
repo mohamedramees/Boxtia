@@ -1,14 +1,11 @@
 import 'dart:io';
-
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Add_Item.dart';
 import 'package:boxtia_inventory/Screens/Product_Page.dart';
-
+import 'package:boxtia_inventory/Screens/Sales_Page.dart';
 import 'package:boxtia_inventory/Screens/Stock_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
-import 'package:boxtia_inventory/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttericon/mfg_labs_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
@@ -50,73 +47,38 @@ class _Home_PageState extends State<Home_Page> {
     final List<Image> GImage = [
       Image.asset('lib/asset/sale.png'),
       Image.asset('lib/asset/stock,home.png'),
-      Image.asset('lib/asset/Add Purchase.png'),
       Image.asset('lib/asset/add sale.png'),
       Image.asset('lib/asset/TodaySale.png'),
       Image.asset('lib/asset/todayPurchase1.png'),
       Image.asset('lib/asset/outof stock.webp'),
     ];
 
-    //IMAGE BRIGHTNESS
-
-    List<Widget> getBrightenedImages(List<Image> images) {
-      return images.map((image) {
-        return ColorFiltered(
-          colorFilter: ColorFilter.matrix(
-            <double>[
-              1.2,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1.2,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1.2,
-              0,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-            ],
-          ),
-          child: image,
-        );
-      }).toList();
-    }
-
-    final List<Widget> brightenedImages = getBrightenedImages(GImage);
-
     //GRID TEXT
 
     final List<String> GText = [
-      "     Mothly\n   Sales",
-      "     Total\n     Stock",
-      "Add\n       Purchase",
-      "    Add\n      Sales",
-      "     Today\n    Sales",
-      "Today\n     Purchase",
-      "     Out Of\n   Stock"
+      "Mothly\n  Sales",
+      "Total\nStock",
+      " Add\nSales",
+      "Today\n Sales",
+      "Purchase\n   Report",
+      "Out Of\n Stock"
     ];
 
     return WillPopScope(
-      onWillPop: () async{
+      onWillPop: () async {
         exit(0);
       },
       child: Container(
-        color: Colors.blue,
+        color:Color.fromARGB(255, 155, 205, 243),
         child: SafeArea(
           child: Scaffold(
+            backgroundColor:Color.fromARGB(255, 150, 191, 223)
+,
+            //APP BAR
             appBar: AppBar(
               shadowColor: Colors.transparent,
               elevation: 10,
-              backgroundColor: Color.fromARGB(255, 21, 127, 213),
+              backgroundColor: Color(0xFF003366),
               automaticallyImplyLeading: false,
               title: Padding(
                 padding: const EdgeInsets.only(
@@ -128,7 +90,7 @@ class _Home_PageState extends State<Home_Page> {
                     textStyle: const TextStyle(
                         color: Colors.cyanAccent,
                         fontSize: 25,
-                        letterSpacing: 1,
+                        letterSpacing: -1,
                         fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -147,6 +109,7 @@ class _Home_PageState extends State<Home_Page> {
                         color: Colors.white,
                       ),
                     ),
+                    //PAGE NAME
                     Padding(
                       padding: const EdgeInsets.only(right: 10.0),
                       child: Text(
@@ -166,10 +129,11 @@ class _Home_PageState extends State<Home_Page> {
               ],
               toolbarHeight: 85,
             ),
+            //BODY & GRID
             body: Padding(
-              padding: const EdgeInsets.only(right: 8, left: 8),
+              padding: const EdgeInsets.only(right: 8, left: 8, top: 52),
               child: GridView.builder(
-                itemCount: 7,
+                itemCount: 6,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 10.0,
@@ -177,49 +141,60 @@ class _Home_PageState extends State<Home_Page> {
                   childAspectRatio: 1.0,
                 ),
                 itemBuilder: (context, index) {
-                  return Card(
-                    color: Colors.lightBlueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    child: ClipRRect(
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Container(
-                          color: Color.fromARGB(255, 12, 121, 211),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 25.0, left: 15),
-                                child: SizedBox(
-                                  width: 50,
-                                  height: 50,
-                                  child: brightenedImages[index],
+                  return GestureDetector(
+                    onTap: () {
+                      homeGridNavigation(index);
+                    },
+                    child: Card(
+                      
+                      color: Color.fromARGB(255, 173, 228, 253),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(17),
+                        child: Container(decoration: BoxDecoration(image: DecorationImage(image: AssetImage('lib/asset/gridbackground.jpg'),
+                        fit: BoxFit.cover)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //GRID IMAGE
+                                Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 25.0,),
+                                    child: SizedBox(
+                                      width: 50,
+                                      height: 50,
+                                      child: Container(
+                                        
+                                        child: GImage[index]),
+                                    ),
+                                  ),
                                 ),
-
-                                // Icon(
-                                //   GIcon[index],
-                                //   size: 35,
-                                //   color: Colors.white,
-                                // ),
-                              ),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Text(
-                                GText[index],
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.mogra(
-                                  textStyle: const TextStyle(
-                                      color: Colors.tealAccent,
-                                      fontSize: 16,
-                                      letterSpacing: 1,
-                                      fontWeight: FontWeight.w400),
+                                SizedBox(
+                                  height: 15,
                                 ),
-                              ),
-                            ],
+                                //GRID TEXT
+                                SizedBox(
+                                  child: Center(
+                                    child: Text(
+                                      GText[index],
+                                      // textAlign: TextAlign.center,
+                                      style: GoogleFonts.arvo(
+                                        textStyle: const TextStyle(
+                                            color: Color.fromARGB(255, 9, 169, 243),
+                                            fontSize: 16,
+                                            letterSpacing: 1,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -228,6 +203,8 @@ class _Home_PageState extends State<Home_Page> {
                 },
               ),
             ),
+
+            //FLOATING BUTTON
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
             floatingActionButton: Padding(
@@ -239,16 +216,19 @@ class _Home_PageState extends State<Home_Page> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Add_Item()),
+                    MaterialPageRoute(builder: (context) => AddItem()),
                   );
                 },
                 child: Icon(
                   MfgLabs.plus,
                   size: 25,
                 ),
-                backgroundColor: Color.fromARGB(255, 21, 127, 213),
+                backgroundColor: Color(0xFF003366),
               ),
             ),
+
+            //BOTTOM APP BAR
+
             bottomNavigationBar: Padding(
               padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
               child: ClipPath(
@@ -261,7 +241,7 @@ class _Home_PageState extends State<Home_Page> {
                   shadowColor: Colors.transparent,
                   shape: const CircularNotchedRectangle(),
                   notchMargin: 10.0,
-                  color: Color.fromARGB(255, 21, 127, 213),
+                  color: Color(0xFF003366),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -418,5 +398,35 @@ class _Home_PageState extends State<Home_Page> {
         );
       },
     );
+  }
+
+  // GRID NAVIGATION
+
+  void homeGridNavigation(int index) {
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Stock_Page()),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => SalesPage()));
+        break;
+      case 3:
+        break;
+      case 4:
+        break;
+      case 5:
+        break;
+      case 6:
+        break;
+      default:
+        break;
+    }
   }
 }
