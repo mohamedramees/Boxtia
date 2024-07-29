@@ -1,3 +1,4 @@
+import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Home_Page.dart';
 import 'package:boxtia_inventory/Screens/Product_Page.dart';
@@ -136,7 +137,8 @@ class _Profile_PageState extends State<Profile_Page> {
         bussiType: _Btype,
         oName: _Oname,
         place: _Country,
-        mobileNumber: _Mnumber,
+        mobileNumber: _Mnumber, 
+        
       );
 
       await updateUser(updatedUser);
@@ -174,17 +176,19 @@ class _Profile_PageState extends State<Profile_Page> {
         return false;
       },
       child: Container(
-        color: Colors.blue,
+        color: AppColor.safeArea,
         child: SafeArea(
+          
           child: GestureDetector(
             onTap: () {
               FocusScope.of(context).unfocus();
             },
             child: Scaffold(
+              backgroundColor: AppColor.scaffold,
               appBar: AppBar(
                 shadowColor: Colors.transparent,
                 elevation: 10,
-                backgroundColor: Color.fromARGB(255, 21, 127, 213),
+                backgroundColor:AppColor.appBar,
                 automaticallyImplyLeading: false,
                 title: Padding(
                   padding: const EdgeInsets.only(
@@ -199,7 +203,7 @@ class _Profile_PageState extends State<Profile_Page> {
                           textStyle: const TextStyle(
                               color: Colors.cyanAccent,
                               fontSize: 25,
-                              // letterSpacing: 1,
+                              letterSpacing: -1,
                               fontWeight: FontWeight.bold),
                         ),
                       );
@@ -251,11 +255,12 @@ class _Profile_PageState extends State<Profile_Page> {
                         ],
                         controller: _BnameController,
                         decoration: InputDecoration(
+                          filled: true,
+                          fillColor: AppColor.textFormBorder,
                           enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: Colors.blue)),
+                              borderRadius: BorderRadius.circular(15),),
                           hintText: Bname,
-                          hintStyle: TextStyle(color: Colors.blue),
+                          hintStyle: TextStyle(color:AppColor.white),
                           suffixIcon: _isFocusedName
                               ? IconButton(
                                   onPressed: _clearBname,
@@ -267,7 +272,7 @@ class _Profile_PageState extends State<Profile_Page> {
                               : null,
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(color: Colors.green),
+                            borderSide: BorderSide(color: Colors.lightGreenAccent),
                           ),
                         ),
                       ),
@@ -276,6 +281,7 @@ class _Profile_PageState extends State<Profile_Page> {
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: TextFormField(
+                        
                         focusNode: _focusNodeType,
                         style: TextStyle(
                           color: Colors.green,
@@ -286,11 +292,12 @@ class _Profile_PageState extends State<Profile_Page> {
                         ],
                         controller: _BTypeController,
                         decoration: InputDecoration(
+                          filled: true,
+                          fillColor: AppColor.textFormBorder,
                           enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: Colors.blue)),
+                              borderRadius: BorderRadius.circular(15),),
                           hintText: Btype,
-                          hintStyle: TextStyle(color: Colors.blue),
+                          hintStyle: TextStyle(color:AppColor.white),
                           suffixIcon: _isFocusedType
                               ? IconButton(
                                   onPressed: _clearBtype,
@@ -321,11 +328,13 @@ class _Profile_PageState extends State<Profile_Page> {
                         ],
                         controller: _OnameController,
                         decoration: InputDecoration(
+                          filled: true,
+                          fillColor: AppColor.textFormBorder,
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: Colors.blue)),
+                              ),
                           hintText: Owner,
-                          hintStyle: TextStyle(color: Colors.blue),
+                          hintStyle: TextStyle(color:AppColor.white),
                           suffixIcon: _isFocusedOwner
                               ? IconButton(
                                   onPressed: _clearOwner,
@@ -356,11 +365,13 @@ class _Profile_PageState extends State<Profile_Page> {
                         ],
                         controller: _PlaceController,
                         decoration: InputDecoration(
+                          filled: true,
+                          fillColor: AppColor.textFormBorder,
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: Colors.blue)),
+                              ),
                           hintText: Country,
-                          hintStyle: TextStyle(color: Colors.blue),
+                          hintStyle: TextStyle(color:AppColor.white),
                           suffixIcon: _isFocusedPlace
                               ? IconButton(
                                   onPressed: _clearCountry,
@@ -395,11 +406,14 @@ class _Profile_PageState extends State<Profile_Page> {
                         ],
                         controller: _MnumberController,
                         decoration: InputDecoration(
+                          filled: true,
+                          fillColor: AppColor.textFormBorder,
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: Colors.blue)),
+                            
+                              ),
                           hintText: Mnumber,
-                          hintStyle: TextStyle(color: Colors.blue),
+                          hintStyle: TextStyle(color:AppColor.white),
                           suffixIcon: _isFocusedMnumber
                               ? IconButton(
                                   onPressed: _clearMnumber,
@@ -443,7 +457,7 @@ class _Profile_PageState extends State<Profile_Page> {
                         ),
                       ),
                     ),
-                    backgroundColor: Color.fromARGB(255, 21, 127, 213),
+                    backgroundColor: AppColor.floating,
                   ),
                 ),
               ),
@@ -459,7 +473,7 @@ class _Profile_PageState extends State<Profile_Page> {
                     shadowColor: Colors.transparent,
                     shape: const CircularNotchedRectangle(),
                     notchMargin: 10.0,
-                    color: Color.fromARGB(255, 21, 127, 213),
+                    color: AppColor.bottomBar,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
