@@ -1,21 +1,20 @@
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Splash_Sreen.dart';
 
-
 import 'package:flutter/material.dart';
 // import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 const saveKeyName = 'UserLoggedIn';
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  if (
-    !Hive.isAdapterRegistered(userModelAdapter().typeId)
-    // &&
-    // !Hive.isAdapterRegistered(itemModelAdapter().typeId)
-    ) {
+  if (!Hive.isAdapterRegistered(userModelAdapter().typeId) &&
+      !Hive.isAdapterRegistered(itemModelAdapter().typeId) &&
+      !Hive.isAdapterRegistered(customerModelAdapter().typeId)) {
     Hive.registerAdapter(userModelAdapter());
-    // Hive.registerAdapter(itemModelAdapter());
+    Hive.registerAdapter(itemModelAdapter());
+    Hive.registerAdapter(customerModelAdapter());
   }
   await Hive.openBox<bool>('userBox');
   runApp(const MyApp());
