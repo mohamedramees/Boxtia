@@ -1,13 +1,15 @@
 import 'dart:io';
+import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:boxtia_inventory/Functions/DB_Functions.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
-import 'package:boxtia_inventory/Screens/Edit_Page.dart';
+import 'package:boxtia_inventory/Screens/Home_Page.dart';
 import 'package:boxtia_inventory/Screens/Product_page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
 import 'package:boxtia_inventory/Screens/Stock_Page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:fluttericon/octicons_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
 import 'package:fluttericon/zocial_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +18,9 @@ import 'package:hive/hive.dart';
 class Item_Page extends StatefulWidget {
   final itemModel item;
 
-  Item_Page({required this.item});
+  Item_Page({
+    required this.item,
+  });
 
   @override
   State<Item_Page> createState() => _Item_PageState();
@@ -28,25 +32,33 @@ class _Item_PageState extends State<Item_Page> {
   final TextEditingController _PriceController = TextEditingController();
   final TextEditingController _CategoryController = TextEditingController();
   final TextEditingController _BrandController = TextEditingController();
+  final TextEditingController _countController = TextEditingController();
 
   String _selectedCategory = 'Mobiles';
-  final _CatList = ['Mobile', 'Tablet', 'Watch', 'Accessories'];
+  // final _CatList = ['Mobiles', 'Tablet', 'Watch', 'Accessories'];
 
   var _selectedBrand = 'Brands';
-  final _brandList = [
-    'Samsung',
-    'Apple',
-    'Google',
-    'Nothing',
-    'Mi',
-    'Oppo',
-    'Vivo'
-  ];
+  // final _brandList = [
+  //   'Samsung',
+  //   'Apple',
+  //   'Google',
+  //   'Nothing',
+  //   'Mi',
+  //   'Oppo',
+  //   'Vivo'
+  // ];
 
-  String _ItemName = "Item Name";
-  String _Color = "Color";
-  String _Price = "Price";
-  List<itemModel> _items = [];
+  String _businessName = '';
+
+  void _fetchBusinessName() async {
+    final box = await Hive.openBox<userModel>('boxtiadb');
+    List<userModel> users = box.values.toList();
+    if (users.isNotEmpty) {
+      setState(() {
+        _businessName = users[0].bussinessName;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -54,10 +66,9 @@ class _Item_PageState extends State<Item_Page> {
     _selectedCategory = widget.item.CategoryM;
     _selectedBrand = widget.item.BrandM;
     pic = widget.item.ItemPicM;
+    _fetchBusinessName();
     fetchAndSetItemData();
   }
-
- 
 
   void fetchAndSetItemData() async {
     List<itemModel> items = await getAllItems();
@@ -71,54 +82,9 @@ class _Item_PageState extends State<Item_Page> {
         _PriceController.text = widget.item.PriceM;
         _CategoryController.text = _selectedCategory;
         _BrandController.text = _selectedBrand;
+        _countController.text = widget.item.CountM;
       });
     }
-  }
-
-  void _showCategoryDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text('Select Category'),
-          children: _CatList.map((category) {
-            return SimpleDialogOption(
-              onPressed: () {
-                setState(() {
-                  _selectedCategory = category;
-                  _CategoryController.text = category;
-                });
-                Navigator.pop(context);
-              },
-              child: Text(category),
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  void _showBrandDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text('Select Brand'),
-          children: _brandList.map((brand) {
-            return SimpleDialogOption(
-              onPressed: () {
-                setState(() {
-                  _selectedBrand = brand;
-                  _BrandController.text = brand;
-                });
-                Navigator.pop(context);
-              },
-              child: Text(brand),
-            );
-          }).toList(),
-        );
-      },
-    );
   }
 
   //IMAGE PICKER
@@ -127,23 +93,25 @@ class _Item_PageState extends State<Item_Page> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blue,
+      color: AppColor.safeArea,
       child: SafeArea(
         child: Scaffold(
+          backgroundColor: AppColor.scaffold,
+          //APP BAR
           appBar: AppBar(
             shadowColor: Colors.transparent,
             elevation: 10,
-            backgroundColor: Color.fromARGB(255, 21, 127, 213),
+            backgroundColor: AppColor.appBar,
             automaticallyImplyLeading: false,
             title: Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
-                "BOXTIA",
-                style: GoogleFonts.mogra(
+                _businessName.isNotEmpty ? _businessName : "BOXTIA",
+                style: GoogleFonts.goldman(
                   textStyle: const TextStyle(
                       color: Colors.cyanAccent,
-                      fontSize: 30,
-                      letterSpacing: 1,
+                      fontSize: 25,
+                      letterSpacing: -1,
                       fontWeight: FontWeight.bold),
                 ),
               ),
@@ -160,7 +128,7 @@ class _Item_PageState extends State<Item_Page> {
                       style: GoogleFonts.mogra(
                         textStyle: const TextStyle(
                             decorationColor: Colors.tealAccent,
-                            color: Colors.tealAccent,
+                            color: AppColor.white,
                             fontSize: 20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
@@ -193,151 +161,240 @@ class _Item_PageState extends State<Item_Page> {
                   SizedBox(height: 20),
 
                   //CATEGORY
-                  AbsorbPointer(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        controller: _CategoryController,
-                        style: TextStyle(
-                          color: Colors.cyanAccent[100],
-                        ),
-                        decoration: InputDecoration(
-                            hintText: 'Category',
-                            fillColor: Color.fromARGB(255, 17, 125, 213),
-                            filled: true,
-                            hintStyle: TextStyle(color: Colors.white),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(15),
-                            )),
-                      ),
+                  Text(
+                    'CATEGORY',
+                    style: GoogleFonts.mogra(
+                      textStyle: TextStyle(
+                          color: AppColor.textFormBorder,
+                          fontSize:20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
-
-                  //BRAND
                   AbsorbPointer(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        controller: _BrandController,
-                        style: TextStyle(
-                          color: Colors.cyanAccent[100],
-                        ),
-                        decoration: InputDecoration(
-                            hintText: 'Brand',
-                            fillColor: Color.fromARGB(255, 17, 125, 213),
-                            filled: true,
-                            hintStyle: TextStyle(color: Colors.white),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(15),
-                            )),
-                      ),
-                    ),
-                  ),
-
-                  //ITEM NAME
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
-                      enabled: false,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(16),
-                      ],
-                      controller: _INameController,
-                      style: TextStyle(
-                        color: Colors.cyanAccent[100],
+                      textAlign: TextAlign.center,
+                      controller: _CategoryController,
+                      style: GoogleFonts.robotoSlab(
+                        textStyle: TextStyle(
+                            color: Colors.cyanAccent[100],
+                            fontSize: 20,
+                            letterSpacing: 1,
+                            fontWeight: FontWeight.bold),
                       ),
                       decoration: InputDecoration(
-                          hintText: _ItemName,
-                          fillColor: Color.fromARGB(255, 17, 125, 213),
+                          hintText: 'Category',
+                          fillColor: AppColor.textFormBorder,
                           filled: true,
-                          hintStyle: TextStyle(color: Colors.white),
+                          hintStyle: TextStyle(color: AppColor.white),
                           border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(15),
                           )),
                     ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  //BRAND
+                  Text(
+                    'BRAND',
+                    style: GoogleFonts.mogra(
+                      textStyle: TextStyle(
+                         color: AppColor.textFormBorder,
+                          fontSize:20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  AbsorbPointer(
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      controller: _BrandController,
+                      style: GoogleFonts.robotoSlab(
+                        textStyle: TextStyle(
+                            color: Colors.cyanAccent[100],
+                            fontSize: 20,
+                            letterSpacing: 1,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      decoration: InputDecoration(
+                          hintText: 'Brand',
+                          fillColor: AppColor.textFormBorder,
+                          filled: true,
+                          hintStyle: TextStyle(color: AppColor.white),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(15),
+                          )),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  //ITEM NAME
+                  Text(
+                    'ITEM NAME',
+                    style: GoogleFonts.mogra(
+                      textStyle: TextStyle(
+                          color: AppColor.textFormBorder,
+                          fontSize:20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  TextFormField(
+                    textAlign: TextAlign.center,
+                    enabled: false,
+                    controller: _INameController,
+                    style: GoogleFonts.robotoSlab(
+                      textStyle: TextStyle(
+                          color: Colors.cyanAccent[100],
+                          fontSize: 20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    decoration: InputDecoration(
+                        fillColor: AppColor.textFormBorder,
+                        filled: true,
+                        hintStyle: TextStyle(color: AppColor.white),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(15),
+                        )),
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   //COLOR
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      enabled: false,
-                      controller: _ColorController,
-                      style: TextStyle(
-                        color: Colors.cyanAccent[100],
-                      ),
-                      decoration: InputDecoration(
-                          hintText: _Color,
-                          fillColor: Color.fromARGB(255, 17, 125, 213),
-                          filled: true,
-                          hintStyle: TextStyle(color: Colors.white),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(15),
-                          )),
+                  Text(
+                    'COLOR',
+                    style: GoogleFonts.mogra(
+                      textStyle: TextStyle(
+                          color: AppColor.textFormBorder,
+                          fontSize:20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
+                  TextFormField(
+                    textAlign: TextAlign.center,
+                    enabled: false,
+                    controller: _ColorController,
+                    style: GoogleFonts.robotoSlab(
+                      textStyle: TextStyle(
+                          color: Colors.cyanAccent[100],
+                          fontSize: 20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    decoration: InputDecoration(
+                        fillColor: AppColor.textFormBorder,
+                        filled: true,
+                        hintStyle: TextStyle(color: AppColor.white),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(15),
+                        )),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   //PRICE
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      enabled: false,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(6),
-                      ],
-                      controller: _PriceController,
-                      style: TextStyle(
-                        color: Colors.cyanAccent[100],
+                  Text(
+                    'PRICE',
+                    style: GoogleFonts.mogra(
+                      textStyle: TextStyle(
+                         color: AppColor.textFormBorder,
+                          fontSize:20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  TextFormField(
+                    enabled: false,
+                    textAlign: TextAlign.center,
+                    controller: _PriceController,
+                    style: GoogleFonts.robotoSlab(
+                      textStyle: TextStyle(
+                          color: Colors.cyanAccent[100],
+                          fontSize: 20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    decoration: InputDecoration(
+                      fillColor: AppColor.textFormBorder,
+                      filled: true,
+                      hintStyle: TextStyle(color: AppColor.white),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      decoration: InputDecoration(
-                          hintText: _Price,
-                          fillColor: Color.fromARGB(255, 17, 125, 213),
-                          filled: true,
-                          hintStyle: TextStyle(color: Colors.white),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(15),
-                          )),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  //COUNT
+                  Text(
+                    'COUNT',
+                    style: GoogleFonts.mogra(
+                      textStyle: TextStyle(
+                          color: AppColor.textFormBorder,
+                          fontSize:20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  TextField(
+                    textAlign: TextAlign.center,
+                    controller: _countController,
+                    style: GoogleFonts.robotoSlab(
+                      textStyle: TextStyle(
+                          color: Colors.cyanAccent[100],
+                          fontSize: 20,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    decoration: InputDecoration(
+                      fillColor: AppColor.textFormBorder,
+                      filled: true,
+                      hintStyle: TextStyle(color: AppColor.white),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ),
+
+          //FLOATING ACTION BUTTON
+
           floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-       floatingActionButton: Padding(
-  padding: const EdgeInsets.only(top: 76.0),
-  child: FloatingActionButton(
-    splashColor: Colors.lightBlueAccent,
-    elevation: 20,
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Edit_Item(item: widget.item),
-        ),
-      ).then((_) {
-        // Refresh data after editing
-        fetchAndSetItemData();
-      });
-    },
-    child: Text(
-      'EDIT',
-      style: GoogleFonts.odibeeSans(
-        textStyle: TextStyle(
-          color: Colors.cyanAccent[100],
-          fontSize: 17,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
-        ),
-      ),
-    ),
-    backgroundColor: Color.fromARGB(255, 21, 127, 213),
-  ),
-),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(top: 76.0),
+            child: FloatingActionButton(
+              splashColor: Colors.lightBlueAccent,
+              elevation: 20,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Home_Page(),
+                  ),
+                );
+              },
+              //HOME ICON
+
+              child: Icon(Octicons.home),
+
+              backgroundColor: AppColor.floating
+            ),
+          ),
+          //BOTTOM APP BAR
 
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
@@ -351,7 +408,7 @@ class _Item_PageState extends State<Item_Page> {
                 shadowColor: Colors.transparent,
                 shape: const CircularNotchedRectangle(),
                 notchMargin: 10.0,
-                color: Color.fromARGB(255, 21, 127, 213),
+                color: AppColor.bottomBar,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -369,7 +426,7 @@ class _Item_PageState extends State<Item_Page> {
                         Typicons.user_outline,
                         size: 32, // Reduced size
                       ),
-                      color: Colors.white,
+                      color: AppColor.white,
                     ),
                     IconButton(
                       tooltip: 'stock',
@@ -383,7 +440,7 @@ class _Item_PageState extends State<Item_Page> {
                         FontAwesome5.boxes,
                         size: 30,
                       ),
-                      color: Colors.white,
+                      color: AppColor.white,
                     ),
                     IconButton(
                       tooltip: 'product',
@@ -397,7 +454,7 @@ class _Item_PageState extends State<Item_Page> {
                         Zocial.paypal,
                         size: 30, // Reduced size
                       ),
-                      color: Colors.white,
+                      color: AppColor.white,
                     ),
                   ],
                 ),
@@ -409,4 +466,3 @@ class _Item_PageState extends State<Item_Page> {
     );
   }
 }
-
