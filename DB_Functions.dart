@@ -33,8 +33,8 @@ Future<void> updateUser(userModel user) async {
   }
 }
 
-//Functions for ITEM
-
+//Functions for ITEMS
+ValueNotifier<List<itemModel>> boxtiaitemdb = ValueNotifier([]);
 //ADD ITEM
 
 Future<void> addItemF(itemModel value) async {
@@ -59,12 +59,30 @@ Future<void> deleteItem(int index) async {
 
 //UPDATE ITEM
 
-Future<void> updateItem(itemModel item) async {
+Future<void> updateItem(int index, itemModel item) async {
   final boxtiaitemdb = await Hive.openBox<itemModel>('boxtiaitemdb');
-  if (boxtiaitemdb.isNotEmpty) {
-    int key = boxtiaitemdb.keyAt(1);
+  if (index >= 0 && index < boxtiaitemdb.length) {
+    int key = boxtiaitemdb.keyAt(index);
     await boxtiaitemdb.put(key, item);
   } else {
-    await boxtiaitemdb.add(item);
+    throw RangeError('Index out of range: $index');
   }
+}
+
+
+//Functions for CUSTOMER
+
+//ADD CUSTOMER
+
+Future<void> addCustomerF(customerModel value) async {
+  final boxtiacustomerdb = await Hive.openBox<customerModel>('boxtiacustomerdb');
+  boxtiacustomerdb.add(value);
+}
+
+//READ CUSTOMER
+
+Future<List<customerModel>> getCustomer() async {
+  final boxtiacustomerdb = await Hive.openBox<customerModel>('boxtiacustomerdb');
+  List<customerModel> items = boxtiacustomerdb.values.toList();
+  return items;
 }
