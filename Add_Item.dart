@@ -5,7 +5,7 @@ import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Product_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
 import 'package:boxtia_inventory/Screens/Stock_Page.dart';
-
+import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
@@ -16,12 +16,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 
-class Add_Item extends StatefulWidget {
+class AddItem extends StatefulWidget {
   @override
-  State<Add_Item> createState() => _Add_ItemState();
+  State<AddItem> createState() => _AddItemState();
 }
 
-class _Add_ItemState extends State<Add_Item> {
+class _AddItemState extends State<AddItem> {
   final TextEditingController _INameController = TextEditingController();
   final TextEditingController _ColorController = TextEditingController();
   final TextEditingController _PriceController = TextEditingController();
@@ -55,9 +55,19 @@ class _Add_ItemState extends State<Add_Item> {
     }
   }
 
-  String _ItemName = "Item Name";
-  String _Color = "Color";
-  String _Price = "Price";
+  int _quantity = 0;
+
+  
+
+  @override
+  void dispose() {
+    _countController.dispose();
+    super.dispose();
+  }
+
+  String _itemName = "Enter Item Name Here";
+  String _color = "Enter Color Here";
+  String _price = "Enter Price Here";
   String _addNewBrandName = "Enter New Brand";
 
   void _InameClear() {
@@ -76,6 +86,7 @@ class _Add_ItemState extends State<Add_Item> {
   void initState() {
     super.initState();
     _fetchBusinessName();
+    _countController.text = _quantity.toString();
   }
 
   void _fetchBusinessName() async {
@@ -94,25 +105,24 @@ class _Add_ItemState extends State<Add_Item> {
     String _Iname = _INameController.text;
     String _IColor = _ColorController.text;
     String _Iprice = _PriceController.text;
-    String _countI = _countController.text;
-
+    String _countI = _countController.text.isNotEmpty ? _countController.text : '0';
+  
     if (_iCategory.isNotEmpty &&
         _iBrand != 'Add Brand' &&
         _iBrand.isNotEmpty &&
         _Iname.isNotEmpty &&
         _IColor.isNotEmpty &&
-        pic!.isNotEmpty &&
+         pic != null &&
         _Iprice.isNotEmpty) {
-      // List<itemModel> existingItems = await getAllItems();
       itemModel newItem = itemModel(
-        CategoryM: _iCategory,
-        BrandM: _iBrand,
-        ItemNameM: _Iname,
-        ColorM: _IColor,
-        PriceM: _Iprice,
-        ItemPicM: pic ?? '',
-        CountM: _countI,
-      );
+        
+          CategoryM: _iCategory,
+          BrandM: _iBrand,
+          ItemNameM: _Iname,
+          ColorM: _IColor,
+          PriceM: _Iprice,
+          ItemPicM: pic!,
+          CountM: _countI);
 
       await addItemF(newItem);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -151,16 +161,27 @@ class _Add_ItemState extends State<Add_Item> {
     }
   }
 
+  String capitalizeEachWord(String input) {
+  
+  if (input == null || input.isEmpty) return input;
+
+  return input
+      .split(' ') // Split the string into words
+      .map((word) => word.isEmpty ? word : word[0].toUpperCase() + word.substring(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
+      .join(' '); // Join the words back together with spaces
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blue,
+      color: AppColor.safeArea,
       child: SafeArea(
-        child: Scaffold(
+        child: Scaffold(backgroundColor: AppColor.scaffold,
           appBar: AppBar(
             shadowColor: Colors.transparent,
             elevation: 10,
-            backgroundColor: Color.fromARGB(255, 21, 127, 213),
+            backgroundColor: AppColor.appBar,
             automaticallyImplyLeading: false,
             title: Padding(
               padding: const EdgeInsets.only(top: 8.0),
@@ -187,7 +208,7 @@ class _Add_ItemState extends State<Add_Item> {
                       style: GoogleFonts.mogra(
                         textStyle: const TextStyle(
                             decorationColor: Colors.tealAccent,
-                            color: Colors.white,
+                            color:AppColor.white,
                             fontSize: 20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
@@ -210,7 +231,6 @@ class _Add_ItemState extends State<Add_Item> {
                       borderRadius: BorderRadius.circular(15),
                       child: pic == null
                           ? Image.asset(
-                              // color: Colors.amber,
                               'lib/asset/no-image.png',
                             )
                           : Image.file(
@@ -224,7 +244,7 @@ class _Add_ItemState extends State<Add_Item> {
                       padding: const EdgeInsets.only(left: 345.0),
                       child: IconButton(
                           iconSize: 30,
-                          color: Color.fromARGB(255, 21, 127, 213),
+                          color: AppColor.floating,
                           onPressed: () {
                             pickImage();
                           },
@@ -239,21 +259,21 @@ class _Add_ItemState extends State<Add_Item> {
                       padding: const EdgeInsets.all(8),
                       child: Theme(
                         data: Theme.of(context)
-                            .copyWith(canvasColor: Colors.white),
+                            .copyWith(canvasColor:AppColor.white),
                         child: Container(
                           child: DropdownButtonFormField(
                               dropdownColor: Colors.blueAccent,
-                              iconEnabledColor: Colors.white,
+                              iconEnabledColor:AppColor.white,
                               iconSize: 35,
                               hint: Text(
-                                'Category',
-                                style: TextStyle(color: Colors.white),
+                                'Select A Category',
+                                style: TextStyle(color:AppColor.white),
                               ),
                               decoration: InputDecoration(
-                                helperStyle: TextStyle(color: Colors.white),
+                                helperStyle: TextStyle(color:AppColor.white),
                                 hoverColor: Colors.blue,
                                 filled: true,
-                                fillColor: Color.fromARGB(255, 17, 125, 213),
+                                fillColor: AppColor.textFormBorder,
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
                                   borderRadius: BorderRadius.circular(15.0),
@@ -283,21 +303,21 @@ class _Add_ItemState extends State<Add_Item> {
                       padding: const EdgeInsets.all(8),
                       child: Theme(
                         data: Theme.of(context)
-                            .copyWith(canvasColor: Colors.white),
+                            .copyWith(canvasColor:AppColor.white),
                         child: Container(
                           child: DropdownButtonFormField(
                             dropdownColor: Colors.blueAccent,
-                            iconEnabledColor: Colors.white,
+                            iconEnabledColor:AppColor.white,
                             iconSize: 35,
                             hint: Text(
-                              'Brand',
-                              style: TextStyle(color: Colors.white),
+                              'Select A Brand',
+                              style: TextStyle(color:AppColor.white),
                             ),
                             decoration: InputDecoration(
-                              helperStyle: TextStyle(color: Colors.white),
+                              helperStyle: TextStyle(color:AppColor.white),
                               hoverColor: Colors.blue,
                               filled: true,
-                              fillColor: Color.fromARGB(255, 17, 125, 213),
+                              fillColor: AppColor.textFormBorder,
                               border: OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius: BorderRadius.circular(15.0),
@@ -312,7 +332,7 @@ class _Add_ItemState extends State<Add_Item> {
                                         ? TextStyle(
                                             fontSize: 15.0,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                            color:AppColor.white,
                                           )
                                         : TextStyle(
                                             color: Colors.cyanAccent[100],
@@ -351,15 +371,15 @@ class _Add_ItemState extends State<Add_Item> {
                               decoration: InputDecoration(
                                   hintText: _addNewBrandName,
                                   filled: true,
-                                  fillColor: Color.fromARGB(255, 17, 125, 213),
+                                  fillColor: AppColor.textFormBorder,
                                   suffixIcon: IconButton(
                                     icon: Icon(
                                       Icons.add,
-                                      color: Colors.white,
+                                      color:AppColor.white,
                                     ),
                                     onPressed: _addNewBrand,
                                   ),
-                                  hintStyle: TextStyle(color: Colors.white),
+                                  hintStyle: TextStyle(color:AppColor.white),
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide.none,
                                     borderRadius: BorderRadius.circular(15),
@@ -374,6 +394,7 @@ class _Add_ItemState extends State<Add_Item> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
+                        textCapitalization: TextCapitalization.words,
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(16),
                         ],
@@ -382,17 +403,17 @@ class _Add_ItemState extends State<Add_Item> {
                           color: Colors.cyanAccent[100],
                         ),
                         decoration: InputDecoration(
-                            hintText: _ItemName,
-                            fillColor: Color.fromARGB(255, 17, 125, 213),
+                            hintText: _itemName,
+                            fillColor: AppColor.textFormBorder,
                             filled: true,
-                            hintStyle: TextStyle(color: Colors.white),
+                            hintStyle: TextStyle(color:AppColor.white),
                             suffixIcon: IconButton(
                               onPressed: () {
                                 _InameClear();
                               },
                               icon: Icon(
                                 Icons.clear,
-                                color: Colors.white,
+                                color:AppColor.white,
                               ),
                             ),
                             border: OutlineInputBorder(
@@ -410,17 +431,17 @@ class _Add_ItemState extends State<Add_Item> {
                           color: Colors.cyanAccent[100],
                         ),
                         decoration: InputDecoration(
-                          hintText: _Color,
-                          fillColor: Color.fromARGB(255, 17, 125, 213),
+                          hintText: _color,
+                          fillColor: AppColor.textFormBorder,
                           filled: true,
-                          hintStyle: TextStyle(color: Colors.white),
+                          hintStyle: TextStyle(color:AppColor.white),
                           suffixIcon: IconButton(
                             onPressed: () {
                               _colorClear();
                             },
                             icon: Icon(
                               Icons.clear,
-                              color: Colors.white,
+                              color:AppColor.white,
                             ),
                           ),
                           border: OutlineInputBorder(
@@ -444,17 +465,17 @@ class _Add_ItemState extends State<Add_Item> {
                           color: Colors.cyanAccent[100],
                         ),
                         decoration: InputDecoration(
-                          hintText: _Price,
-                          fillColor: Color.fromARGB(255, 17, 125, 213),
+                          hintText: _price,
+                          fillColor: AppColor.textFormBorder,
                           filled: true,
-                          hintStyle: TextStyle(color: Colors.white),
+                          hintStyle: TextStyle(color:AppColor.white),
                           suffixIcon: IconButton(
                             onPressed: () {
                               _priceClear();
                             },
                             icon: Icon(
                               Icons.clear,
-                              color: Colors.white,
+                              color:AppColor.white,
                             ),
                           ),
                           border: OutlineInputBorder(
@@ -464,42 +485,104 @@ class _Add_ItemState extends State<Add_Item> {
                         ),
                       ),
                     ),
+
                     //COUNT
+                    Text(
+                      'count',
+                      style: GoogleFonts.robotoSlab(
+                          color: Colors.blue,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+//COUNT --
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 134),
-                      child: TextFormField(
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        controller: _countController,
-                        style: TextStyle(
-                          color: Colors.cyanAccent[100],
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(2),
-                          FilteringTextInputFormatter.digitsOnly,
+                      padding: const EdgeInsets.all(8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: AppColor.textFormBorder,
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                FontAwesome5.minus,
+                                color:AppColor.white,
+                                size: 27,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  if (_quantity > 0) {
+                                    _quantity--;
+                                    _countController.text =
+                                        _quantity.toString();
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                          //COUNT TEXT FIELD
+
+                          Container(
+                            width: 100,
+                            height: 55,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color:AppColor.textFormBorder,
+                            ),
+                            child: Center(
+                              child: TextFormField(
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(3),
+                                ],
+                                style: GoogleFonts.robotoSlab(
+                                    color:AppColor.white,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold),
+                                controller: _countController,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.only(bottom: 10),
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _quantity = int.parse(value);
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          //COUNT ++
+
+                          Container(
+                            width: 60,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color:AppColor.textFormBorder,
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                FontAwesome5.plus,
+                                color:AppColor.white,
+                                size: 27,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _quantity++;
+                                  _countController.text = _quantity.toString();
+                                });
+                              },
+                            ),
+                          ),
                         ],
-                        decoration: InputDecoration(
-                          prefixIcon: IconButton(
-                              highlightColor: Colors.lightBlueAccent,
-                              color: Colors.white,
-                              onPressed: () {},
-                              icon: Icon(FontAwesome5.minus)),
-                          suffixIcon: IconButton(
-                            focusColor: Colors.amberAccent,
-                            highlightColor: Colors.lightBlueAccent,
-                            color: Colors.white,
-                            onPressed: () {},
-                            icon: Icon(FontAwesome5.plus),
-                          ),
-                          fillColor: Color.fromARGB(255, 17, 125, 213),
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -524,7 +607,7 @@ class _Add_ItemState extends State<Add_Item> {
                       fontWeight: FontWeight.bold),
                 ),
               ),
-              backgroundColor: Color.fromARGB(255, 21, 127, 213),
+              backgroundColor: AppColor.floating,
             ),
           ),
           bottomNavigationBar: Padding(
@@ -539,7 +622,7 @@ class _Add_ItemState extends State<Add_Item> {
                 shadowColor: Colors.transparent,
                 shape: const CircularNotchedRectangle(),
                 notchMargin: 10.0,
-                color: Color.fromARGB(255, 21, 127, 213),
+                color: AppColor.bottomBar,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -555,9 +638,9 @@ class _Add_ItemState extends State<Add_Item> {
                       },
                       icon: Icon(
                         Typicons.user_outline,
-                        size: 32, // Reduced size
+                        size: 32, 
                       ),
-                      color: Colors.white,
+                      color:AppColor.white,
                     ),
                     IconButton(
                       tooltip: 'stock',
@@ -571,7 +654,7 @@ class _Add_ItemState extends State<Add_Item> {
                         FontAwesome5.boxes,
                         size: 30,
                       ),
-                      color: Colors.white,
+                      color:AppColor.white,
                     ),
                     IconButton(
                       tooltip: 'product',
@@ -585,7 +668,7 @@ class _Add_ItemState extends State<Add_Item> {
                         Zocial.paypal,
                         size: 30, // Reduced size
                       ),
-                      color: Colors.white,
+                      color:AppColor.white,
                     ),
                   ],
                 ),
