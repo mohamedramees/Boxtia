@@ -5,6 +5,7 @@ import 'package:boxtia_inventory/Screens/Add_Item.dart';
 import 'package:boxtia_inventory/Screens/Home_Page.dart';
 import 'package:boxtia_inventory/Screens/Product_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
+import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttericon/mfg_labs_icons.dart';
@@ -32,7 +33,7 @@ class _Stock_PageState extends State<Stock_Page> {
     _fetchItems();
   }
 
-  Future<void> _fetchBusinessName() async {
+  void _fetchBusinessName() async {
     final box = await Hive.openBox<userModel>('boxtiadb');
     List<userModel> users = box.values.toList();
     if (users.isNotEmpty) {
@@ -42,12 +43,12 @@ class _Stock_PageState extends State<Stock_Page> {
     }
   }
 
-  Future<void> _fetchItems() async {
+  void _fetchItems() async {
     final box = await Hive.openBox<itemModel>('boxtiaitemdb');
     List<itemModel> items = box.values.toList();
     setState(() {
       _items = items;
-      
+    
     });
   }
 
@@ -74,269 +75,264 @@ class _Stock_PageState extends State<Stock_Page> {
         return false;
       },
       child: Container(
-        color: Colors.blue,
+        color: AppColor.safeArea,
         child: SafeArea(
           child: Scaffold(
-            appBar: _buildAppBar(),
-            body: _buildBody(),
-            floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-            floatingActionButton: _buildFloatingActionButton(),
-            bottomNavigationBar: _buildBottomNavigationBar(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      shadowColor: Colors.transparent,
-      elevation: 10,
-      backgroundColor: Color.fromARGB(255, 21, 127, 213),
-      automaticallyImplyLeading: false,
-      title: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Text(
-          _businessName.isNotEmpty ? _businessName : "BOXTIA",
-          style: GoogleFonts.goldman(
-            textStyle: const TextStyle(
-              color: Colors.cyanAccent,
-              fontSize: 25,
-              letterSpacing: -1,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 10.0),
-          child: Row(
-            children: [
-              _buildSortMenu(),
-              SizedBox(width: 10),
-              Text(
-                "STOCK",
-                style: GoogleFonts.mogra(
-                  textStyle: const TextStyle(
-                    decorationColor: Colors.tealAccent,
-                    color: Colors.white,
-                    fontSize: 20,
-                    letterSpacing: 1,
-                    fontWeight: FontWeight.bold,
-                  ),
+            backgroundColor: AppColor.safeArea,
+            appBar: AppBar(
+              shadowColor: Colors.transparent,
+              elevation: 10,
+              backgroundColor: AppColor.appBar,
+              automaticallyImplyLeading: false,
+              title: Padding(
+                padding: const EdgeInsets.only(
+                  top: 8.0,
                 ),
-              ),
-            ],
-          ),
-        ),
-      ],
-      toolbarHeight: 85,
-    );
-  }
-
-  PopupMenuButton<int> _buildSortMenu() {
-    return PopupMenuButton<int>(
-      icon: Padding(
-        padding: const EdgeInsets.only(bottom: 5.0),
-        child: Icon(
-          FontAwesome5.sort,
-          color: Color.fromARGB(255, 7, 236, 118),
-        ),
-      ),
-      onSelected: (value) {
-        setState(() {
-          _isAscending = value == 1;
-          _sortItems();
-        });
-      },
-      itemBuilder: (BuildContext context) => [
-        PopupMenuItem<int>(
-          value: 1,
-          child: Row(
-            children: [
-              Icon(FontAwesome5.sort_amount_up_alt),
-              SizedBox(width: 10),
-              Text('Ascending'),
-            ],
-          ),
-        ),
-        PopupMenuItem<int>(
-          value: 2,
-          child: Row(
-            children: [
-              Icon(FontAwesome5.sort_amount_down),
-              SizedBox(width: 10),
-              Text('Descending'),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBody() {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: ListView.builder(
-        itemCount: _items.length,
-        itemBuilder: (context, index) {
-          final item = _items[index];
-          return Card(
-            color: int.tryParse(item.CountM) != null && int.parse(item.CountM) > 1
-                ? Color.fromARGB(255, 247, 248, 249)
-                : Color.fromARGB(255, 197, 15, 2),
-            shadowColor: Colors.lightBlueAccent,
-            surfaceTintColor: Colors.lightBlueAccent,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 15),
-              child: ListTile(
-                leading: Image.file(
-                  File(item.ItemPicM),
-                  alignment: Alignment.center,
-                  width: 90,
-                  height: 100,
-                  fit: BoxFit.contain,
-                ),
-                title: Text(
-                  item.ItemNameM,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.josefinSans(
+                child: Text(
+                  _businessName.isNotEmpty ? _businessName : "BOXTIA",
+                  style: GoogleFonts.goldman(
                     textStyle: const TextStyle(
-                      decorationColor: Colors.tealAccent,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
+                      color: Colors.cyanAccent,
+                      fontSize: 25,
                       letterSpacing: -1,
-                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.all(8.0),
+              ),
+              actions: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10.0),
+                      child: Row(
+                        children: [
+                          PopupMenuButton(
+                              icon: Padding(
+                                padding: const EdgeInsets.only(bottom: 5.0),
+                                child: Icon(
+                                  FontAwesome5.sort,
+                                  color: Color.fromARGB(255, 7, 236, 118),
+                                ),
+                              ),
+                              onSelected: (value) {
+                                setState(() {
+                                  _isAscending = value == 1;
+                                  _sortItems();
+                                });
+                              },
+                              itemBuilder: (BuildContext context) => [
+                                    PopupMenuItem(
+                                      value: 1,
+                                      child: Row(
+                                        children: [
+                                          Icon(FontAwesome5.sort_amount_up_alt),
+                                          SizedBox(width: 10),
+                                          Text('Ascending'),
+                                        ],
+                                      ),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 2,
+                                      child: Row(
+                                        children: [
+                                          Icon(FontAwesome5.sort_amount_down),
+                                          SizedBox(width: 10),
+                                          Text('Descending'),
+                                        ],
+                                      ),
+                                    ),
+                                  ]),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "STOCK",
+                            style: GoogleFonts.mogra(
+                              textStyle: const TextStyle(
+                                decorationColor: Colors.tealAccent,
+                                color: AppColor.white,
+                                fontSize: 20,
+                                letterSpacing: 1,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              toolbarHeight: 85,
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ListView.builder(
+                itemCount: _items.length,
+                itemBuilder: (context, index) {
+                  final item = _items[index];
+                  return Card(
+                    color: int.tryParse(item.CountM) != null &&
+                            int.parse(item.CountM) > 1
+                        ? Color.fromARGB(255, 247, 248, 249)
+                        : Color.fromARGB(255, 197, 15, 2),
+                    shadowColor: Colors.lightBlueAccent,
+                    surfaceTintColor: Colors.lightBlueAccent,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5.0, vertical: 15),
+                      child: ListTile(
+                        leading: Image.file(
+                          File(
+                            item.ItemPicM,
+                          ),
+                          alignment: Alignment.center,
+                          width: 90,
+                          height: 100,
+                          fit: BoxFit.contain,
+                        ),
+                        title: Text(
+                          item.ItemNameM,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.josefinSans(
+                            textStyle: const TextStyle(
+                                decorationColor: Colors.tealAccent,
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: -1,
+                                fontSize: 22),
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text(
+                                'COUNT',
+                                style: GoogleFonts.mogra(
+                                  textStyle: const TextStyle(
+                                      color: Colors.amber,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15),
+                                ),
+                                textAlign: TextAlign.start,
+                              ),
+                              Text(
+                                item.CountM,
+                                style: GoogleFonts.mogra(
+                                  textStyle: const TextStyle(
+                                      color: Color.fromARGB(255, 0, 0, 0),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              Icon(
+                                Icons.donut_large_outlined,
+                                color: int.tryParse(item.CountM) != null &&
+                                        int.parse(item.CountM) > 10
+                                    ? Colors.green
+                                    : Colors.red,
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.endDocked,
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.only(top: 76.0),
+              child: FloatingActionButton(
+                tooltip: 'add item',
+                splashColor: Colors.lightBlueAccent,
+                elevation: 20,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddItem()),
+                  );
+                },
+                child: Icon(
+                  MfgLabs.plus,
+                  size: 25,
+                ),
+                backgroundColor: AppColor.floating
+              ),
+            ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
+              child: ClipPath(
+                clipper: ShapeBorderClipper(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: BottomAppBar(
+                  shadowColor: Colors.transparent,
+                  shape: const CircularNotchedRectangle(),
+                  notchMargin: 10.0,
+                  color: AppColor.bottomBar,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text(
-                        'COUNT',
-                        style: GoogleFonts.mogra(
-                          textStyle: const TextStyle(
-                            color: Colors.amber,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
+                      IconButton(
+                        tooltip: 'profile',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Profile_Page(),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Typicons.user_outline,
+                          size: 32, // Reduced size
                         ),
-                        textAlign: TextAlign.start,
+                        color: AppColor.white,
                       ),
-                      Text(
-                        item.CountM,
-                        style: GoogleFonts.mogra(
-                          textStyle: const TextStyle(
-                            color: Color.fromARGB(255, 0, 0, 0),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                          ),
+                      IconButton(
+                        tooltip: 'stock',
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Stock_Page()));
+                        },
+                        icon: Icon(
+                          FontAwesome5.boxes,
+                          size: 30,
                         ),
-                        textAlign: TextAlign.center,
+                        color: Colors.lightGreenAccent,
                       ),
-                      Icon(
-                        Icons.donut_large_outlined,
-                        color: int.tryParse(item.CountM) != null && int.parse(item.CountM) > 10
-                            ? Colors.green
-                            : Colors.red,
+                      IconButton(
+                        tooltip: 'product',
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Product_Page()));
+                        },
+                        icon: Icon(
+                          Zocial.paypal,
+                          size: 30, // Reduced size
+                        ),
+                        color: AppColor.white,
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildFloatingActionButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 76.0),
-      child: FloatingActionButton(
-        tooltip: 'add item',
-        splashColor: Colors.lightBlueAccent,
-        elevation: 20,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddItem()),
-          );
-        },
-        child: Icon(
-          MfgLabs.plus,
-          size: 25,
-        ),
-        backgroundColor: Color.fromARGB(255, 21, 127, 213),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Padding(
-      padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
-      child: ClipPath(
-        clipper: ShapeBorderClipper(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-        ),
-        child: BottomAppBar(
-          shadowColor: Colors.transparent,
-          shape: const CircularNotchedRectangle(),
-          notchMargin: 10.0,
-          color: Color.fromARGB(255, 21, 127, 213),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                tooltip: 'profile',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Profile_Page()),
-                  );
-                },
-                icon: Icon(
-                  Typicons.user_outline,
-                  size: 32, // Reduced size
-                ),
-                color: Colors.white,
-              ),
-              IconButton(
-                tooltip: 'stock',
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => Stock_Page()),
-                  );
-                },
-                icon: Icon(
-                  FontAwesome5.boxes,
-                  size: 30,
-                ),
-                color: Colors.lightGreenAccent,
-              ),
-              IconButton(
-                tooltip: 'product',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Product_Page()),
-                  );
-                },
-                icon: Icon(
-                  Zocial.paypal,
-                  size: 30, // Reduced size
-                ),
-                color: Colors.white,
-              ),
-            ],
           ),
         ),
       ),
