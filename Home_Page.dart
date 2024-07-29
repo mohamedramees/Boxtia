@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Add_Item.dart';
 import 'package:boxtia_inventory/Screens/Product_Page.dart';
@@ -69,16 +70,16 @@ class _Home_PageState extends State<Home_Page> {
         exit(0);
       },
       child: Container(
-        color:Color.fromARGB(255, 155, 205, 243),
+        color:AppColor.safeArea,
         child: SafeArea(
           child: Scaffold(
-            backgroundColor:Color.fromARGB(255, 150, 191, 223)
+            backgroundColor:AppColor.scaffold
 ,
             //APP BAR
             appBar: AppBar(
               shadowColor: Colors.transparent,
               elevation: 10,
-              backgroundColor: Color(0xFF003366),
+              backgroundColor: AppColor.appBar,
               automaticallyImplyLeading: false,
               title: Padding(
                 padding: const EdgeInsets.only(
@@ -223,7 +224,7 @@ class _Home_PageState extends State<Home_Page> {
                   MfgLabs.plus,
                   size: 25,
                 ),
-                backgroundColor: Color(0xFF003366),
+                backgroundColor: AppColor.floating
               ),
             ),
 
@@ -241,7 +242,7 @@ class _Home_PageState extends State<Home_Page> {
                   shadowColor: Colors.transparent,
                   shape: const CircularNotchedRectangle(),
                   notchMargin: 10.0,
-                  color: Color(0xFF003366),
+                  color: AppColor.bottomBar,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
