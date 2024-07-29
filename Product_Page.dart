@@ -8,6 +8,7 @@ import 'package:boxtia_inventory/Screens/Home_Page.dart';
 import 'package:boxtia_inventory/Screens/Item_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
 import 'package:boxtia_inventory/Screens/Stock_Page.dart';
+import 'package:boxtia_inventory/services/AppColors.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fluttericon/elusive_icons.dart';
@@ -42,6 +43,7 @@ class _Product_PageState extends State<Product_Page> {
 
   final GlobalKey _menuKey = GlobalKey();
   
+  // ignore: unused_field
   bool _popupMenuEnabled = true;
   late PopupMenu menu;
 
@@ -134,14 +136,15 @@ class _Product_PageState extends State<Product_Page> {
         return false;
       },
       child: Container(
-        color: Colors.blue,
+        color: AppColor.safeArea,
         child: SafeArea(
           child: Scaffold(
+            backgroundColor: AppColor.scaffold,
             //APPBAR
             appBar: AppBar(
               shadowColor: Colors.transparent,
               elevation: 10,
-              backgroundColor: Color.fromARGB(255, 21, 127, 213),
+              backgroundColor: AppColor.appBar,
               automaticallyImplyLeading: false,
               title: Padding(
                 padding: const EdgeInsets.only(top: 8.0),
@@ -189,7 +192,7 @@ class _Product_PageState extends State<Product_Page> {
 
             //BODY BUTTON
 
-            body: Scaffold(
+            body: Scaffold(backgroundColor: AppColor.scaffold,
               floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
               floatingActionButton: Column(
                 children: [
@@ -206,7 +209,7 @@ class _Product_PageState extends State<Product_Page> {
                     ),
                     rtl: true,
                     width: 400,
-                    color: Color.fromARGB(255, 21, 127, 213),
+                    color: AppColor.floating,
                     searchIconColor: Colors.white,
                     textController: textController,
                     onSuffixTap: () {
@@ -224,7 +227,7 @@ class _Product_PageState extends State<Product_Page> {
                     child: FloatingActionButton(
                       key: _menuKey,
                       heroTag: "filterButton",
-                      backgroundColor: Color.fromARGB(255, 21, 127, 213),
+                      backgroundColor: AppColor.floating,
                       onPressed: () {
                         menu.show(widgetKey: _menuKey);
                       },
@@ -448,7 +451,7 @@ class _Product_PageState extends State<Product_Page> {
                   MfgLabs.plus,
                   size: 25,
                 ),
-                backgroundColor: Color.fromARGB(255, 21, 127, 213),
+                backgroundColor: AppColor.floating
               ),
             ),
 
@@ -466,7 +469,7 @@ class _Product_PageState extends State<Product_Page> {
                   shadowColor: Colors.transparent,
                   shape: const CircularNotchedRectangle(),
                   notchMargin: 10.0,
-                  color: Color.fromARGB(255, 21, 127, 213),
+                  color: AppColor.bottomBar,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
