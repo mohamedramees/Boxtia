@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:boxtia_inventory/Functions/DB_Functions.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
+import 'package:boxtia_inventory/Screens/Invoice.dart';
 import 'package:boxtia_inventory/Screens/Product_Page.dart';
 import 'package:boxtia_inventory/Screens/Profile_Page.dart';
 import 'package:boxtia_inventory/Screens/Stock_Page.dart';
+import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
@@ -41,7 +44,7 @@ class _BillingPageState extends State<BillingPage> {
   }
 
   String _businessName = '';
-
+  double allTotal = 0.0;
   @override
   void initState() {
     super.initState();
@@ -83,16 +86,35 @@ class _BillingPageState extends State<BillingPage> {
         .join(' '); // Join the words back together with spaces
   }
 
+  Future<void> _registerCustomer(BuildContext context) async {
+    String _CustomerName = _customerNameController.text;
+    String _CustomerNumber = _customerNumberController.text;
+
+    customerModel saveCustomer = customerModel(
+        customerNameM: _CustomerName, customerNumberM: _CustomerNumber);
+
+    await addCustomerF(saveCustomer);
+
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => InvoicePage()));
+  }
+
   @override
   Widget build(BuildContext context) {
-    double allTotal = 0.0;
+    // CALCULATE ALL TOTAL
+    allTotal = widget.selectedItems.fold(0.0, (sum, item) {
+      double price = double.tryParse(item.PriceM) ?? 0.0;
+      double total = price * item.QuantityM;
+      return sum + total;
+    });
     return Container(
-      color: Colors.blue,
+      color: AppColor.safeArea,
       child: SafeArea(
         child: Scaffold(
+          backgroundColor: AppColor.scaffold,
           appBar: AppBar(
             elevation: 10,
-            backgroundColor: Color.fromARGB(255, 21, 127, 213),
+            backgroundColor: AppColor.appBar,
             automaticallyImplyLeading: false,
             title: Padding(
               padding: const EdgeInsets.only(top: 8.0),
@@ -120,7 +142,7 @@ class _BillingPageState extends State<BillingPage> {
                       style: GoogleFonts.mogra(
                         textStyle: const TextStyle(
                           decorationColor: Colors.tealAccent,
-                          color: Colors.white,
+                          color: AppColor.white,
                           fontSize: 20,
                           letterSpacing: 1,
                           fontWeight: FontWeight.bold,
@@ -150,10 +172,6 @@ class _BillingPageState extends State<BillingPage> {
                       double price = double.tryParse(item.PriceM) ?? 0.0;
                       double total = price * item.QuantityM;
 
-                      // TOTAL PRICE
-
-                      allTotal += total; 
-                      
                       return Card(
                         child: ListTile(
                           leading: item.ItemPicM.isNotEmpty
@@ -288,7 +306,7 @@ class _BillingPageState extends State<BillingPage> {
                     'Customer Details',
                     style: GoogleFonts.arvo(
                       textStyle: TextStyle(
-                          color: Colors.blue,
+                          color: AppColor.textFormBorder,
                           fontSize: 15,
                           letterSpacing: -1,
                           fontWeight: FontWeight.bold),
@@ -313,7 +331,7 @@ class _BillingPageState extends State<BillingPage> {
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Colors.blue)),
+                          borderSide: BorderSide(color:AppColor.textFormBorder)),
                       labelText: 'Enter Customer Name Here',
                       suffixIcon: _isFocusedName
                           ? IconButton(
@@ -348,7 +366,7 @@ class _BillingPageState extends State<BillingPage> {
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Colors.blue)),
+                          borderSide: BorderSide(color:AppColor.textFormBorder)),
                       labelText: 'Enter Customer Number Here',
                       suffixIcon: _isFocusedNumber
                           ? IconButton(
@@ -375,7 +393,9 @@ class _BillingPageState extends State<BillingPage> {
             child: FloatingActionButton(
               splashColor: Colors.lightBlueAccent,
               elevation: 20,
-              onPressed: () {},
+              onPressed: () {
+                _registerCustomer(context);
+              },
               child: Text(
                 'SELL',
                 style: GoogleFonts.arvo(
@@ -386,7 +406,7 @@ class _BillingPageState extends State<BillingPage> {
                   ),
                 ),
               ),
-              backgroundColor: Color.fromARGB(255, 21, 127, 213),
+              backgroundColor: AppColor.floating,
             ),
           ),
           bottomNavigationBar: Padding(
@@ -398,10 +418,10 @@ class _BillingPageState extends State<BillingPage> {
                 ),
               ),
               child: BottomAppBar(
-                shadowColor: Colors.transparent,
+                
                 shape: const CircularNotchedRectangle(),
                 notchMargin: 10.0,
-                color: Color.fromARGB(255, 21, 127, 213),
+                color: AppColor.bottomBar,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -419,7 +439,7 @@ class _BillingPageState extends State<BillingPage> {
                         Typicons.user_outline,
                         size: 32,
                       ),
-                      color: Colors.white,
+                      color: AppColor.white,
                     ),
                     IconButton(
                       tooltip: 'stock',
@@ -435,7 +455,7 @@ class _BillingPageState extends State<BillingPage> {
                         FontAwesome5.boxes,
                         size: 30,
                       ),
-                      color: Colors.white,
+                      color: AppColor.white,
                     ),
                     IconButton(
                       tooltip: 'product',
@@ -451,7 +471,7 @@ class _BillingPageState extends State<BillingPage> {
                         Zocial.paypal,
                         size: 30,
                       ),
-                      color: Colors.white,
+                      color: AppColor.white,
                     ),
                   ],
                 ),
