@@ -127,9 +127,9 @@ class _BillingPageState extends State<BillingPage> {
   void _updateQuantity(int index, int delta) {
     final currentItem = _items[index];
     int maxCount = int.parse(currentItem.CountM);
-
+    int newQuantity = (_quantities[index] ?? 0) + delta;
     setState(() {
-      int newQuantity = (_quantities[index] ?? 0) + delta;
+
 
       if (newQuantity >= 0 && newQuantity <= maxCount) {
         _quantities[index] = newQuantity;
@@ -582,7 +582,9 @@ class _BillingPageState extends State<BillingPage> {
           ),
         ],
       ),
+
       // New widget added below the existing content
+      
       Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Center(
@@ -592,8 +594,8 @@ class _BillingPageState extends State<BillingPage> {
               // COUNT --
 
               Container(
-                width: 30,
-                height: 30,
+                width: 35,
+                height: 35,
                 decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),                  color: AppColor.textFormBorder,
              ),
@@ -616,7 +618,7 @@ SizedBox(width: 5,),
 
               Container(
                 width: 50,
-                height: 30,
+                height: 35,
           decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: AppColor.textFormBorder,
@@ -628,10 +630,11 @@ SizedBox(width: 5,),
                                     ],
                                     style: GoogleFonts.robotoSlab(
                                       color: AppColor.white,
-                                      fontSize: 23,
+                                      fontSize: 22,
                                       fontWeight: FontWeight.bold,
                                     ),
-                                    controller: controller,
+                                    controller: _countControllers[index] ??= TextEditingController(text: '0'),
+
                                     keyboardType: TextInputType.number,
                                     textAlign: TextAlign.center,
                                     decoration: InputDecoration(
@@ -655,8 +658,8 @@ SizedBox(width: 5,),
               // COUNT ++
 
               Container(
-                width: 30,
-                height: 30,
+                width: 35,
+                height: 35,
               decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: AppColor.textFormBorder,
