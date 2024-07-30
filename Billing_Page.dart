@@ -32,8 +32,10 @@ class _BillingPageState extends State<BillingPage> {
   final TextEditingController _searchController = TextEditingController();
   ValueNotifier<String> _selectedCategory = ValueNotifier<String>('All');
   ValueNotifier<String> _searchKeyword = ValueNotifier<String>('');
-
+  String search = 'Search Item Here...';
   List<itemModel> _items = [];
+  final Map<int, int> _quantities = {};
+  final Map<int, TextEditingController> _countControllers = {};
 
   final FocusNode _focusNodeName = FocusNode();
   final FocusNode _focusNodeNumber = FocusNode();
@@ -120,6 +122,20 @@ class _BillingPageState extends State<BillingPage> {
     await addCustomerF(saveCustomer);
 
     Navigator.push(context, MaterialPageRoute(builder: (context) => InvoicePage()));
+  }
+
+  void _updateQuantity(int index, int delta) {
+    final currentItem = _items[index];
+    int maxCount = int.parse(currentItem.CountM);
+
+    setState(() {
+      int newQuantity = (_quantities[index] ?? 0) + delta;
+
+      if (newQuantity >= 0 && newQuantity <= maxCount) {
+        _quantities[index] = newQuantity;
+        _countControllers[index]?.text = newQuantity.toString();
+      }
+    });
   }
 
   @override
@@ -479,6 +495,9 @@ class _BillingPageState extends State<BillingPage> {
                               itemCount: filteredItems.length,
                               itemBuilder: (context, index) {
                                 final item = filteredItems[index];
+                                final quantity = _quantities[index] ?? 0;
+                                final controller = _countControllers[index];
+                                int maxCount = int.parse(item.CountM);
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 0.0, horizontal: 5
@@ -489,77 +508,178 @@ class _BillingPageState extends State<BillingPage> {
                                     child: Padding(
                                       padding: const EdgeInsets.all(12.0),
                                       child: ListTile(
-                                        leading: ClipRRect(
-                                          borderRadius: BorderRadius.circular(15),
-                                          child: Image.file(
-                                            File(item.ItemPicM),
-                                            width: 90,
-                                            height: 100,
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
-                                        title: Text(
-                                          item.ItemNameM,
-                                          style: GoogleFonts.arvo(
-                                            textStyle: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: -0.5,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
-                                        subtitle: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            '\u{20B9}',
-                            style: TextStyle(
-                              color: AppColor.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            item.PriceM,
-                            style: TextStyle(
-                              color: AppColor.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 6.0),
-                        child: Row(
-                          children: [
-                            Text(
-                              'count = ',
-                              style: GoogleFonts.robotoSlab(
-                                textStyle: const TextStyle(
-                                  color: Color.fromARGB(255, 162, 154, 154),
-                                  fontSize: 15,
-                                  letterSpacing: -1,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 3.0),
-                              child: Text(
-                                item.CountM,
-                                style: TextStyle(
-                                  color: AppColor.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+  leading: ClipRRect(
+    borderRadius: BorderRadius.circular(15),
+    child: Image.file(
+      File(item.ItemPicM),
+      width: 90,
+      height: 100,
+      fit: BoxFit.contain,
+    ),
+  ),
+  title: Text(
+    item.ItemNameM,
+    style: GoogleFonts.arvo(
+      textStyle: TextStyle(
+        color: AppColor.itemName,
+        fontWeight: FontWeight.bold,
+        letterSpacing: -0.5,
+        fontSize: 16,
+      ),
+    ),
+  ),
+  subtitle: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Text(
+                '\u{20B9}',
+                style: TextStyle(
+                  color: AppColor.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                item.PriceM,
+                style: TextStyle(
+                  color: AppColor.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6.0),
+            child: Row(
+              children: [
+                Text(
+                  'count = ',
+                  style: GoogleFonts.robotoSlab(
+                    textStyle: const TextStyle(
+                      color: Color.fromARGB(255, 162, 154, 154),
+                      fontSize: 15,
+                      letterSpacing: -1,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                                      ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 3.0),
+                  child: Text(
+                    item.CountM,
+                    style: TextStyle(
+                      color: AppColor.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      // New widget added below the existing content
+      Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Center(
+          child: Row(
+            children: [
+
+              // COUNT --
+
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),                  color: AppColor.textFormBorder,
+             ),
+            child: IconButton(
+             onPressed: (){
+               if (quantity > 0)
+              {
+               _updateQuantity(index, -1);
+              }
+             },
+             icon:Icon(
+              FontAwesome5.minus,
+              color: AppColor.white,
+              size: 15,
+              ),
+              ),
+              ),
+SizedBox(width: 5,),
+              // COUNT TEXT FIELD
+
+              Container(
+                width: 50,
+                height: 30,
+          decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: AppColor.textFormBorder,
+          ),
+          child: Center(
+            child: TextFormField(
+             inputFormatters: [
+                                      LengthLimitingTextInputFormatter(3),
+                                    ],
+                                    style: GoogleFonts.robotoSlab(
+                                      color: AppColor.white,
+                                      fontSize: 23,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    controller: controller,
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.only(bottom: 10),
+                                    ),
+                                    onChanged: (value) {
+                                      int newValue = int.tryParse(value) ?? 0;
+                                      if (newValue > maxCount) {
+                                        controller?.text = maxCount.toString();
+                                      } else {
+                                        setState(() {
+                                          _quantities[index] = newValue;
+                                        });
+                                      }
+                                    },
+            ),
+          ),
+              ),
+SizedBox(width: 5,),
+              // COUNT ++
+
+              Container(
+                width: 30,
+                height: 30,
+              decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: AppColor.textFormBorder,
+              ),
+              child:IconButton(
+                                  icon: Icon(
+                                    FontAwesome5.plus,
+                                    color: AppColor.white,
+                                    size: 15,
+                                  ),
+                                  onPressed: () {
+                                    _updateQuantity(index, 1);
+                                  },
+                                ) ,
+              ),
+            ],
+          )
+        ),
+      ),
+    ],
+  ),
+)
+
                                     ),
                                   ),
                                 );
