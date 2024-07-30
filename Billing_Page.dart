@@ -10,6 +10,8 @@ import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:fluttericon/font_awesome_icons.dart';
+import 'package:fluttericon/linecons_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
 import 'package:fluttericon/zocial_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,8 +28,12 @@ class BillingPage extends StatefulWidget {
 
 class _BillingPageState extends State<BillingPage> {
   final TextEditingController _customerNameController = TextEditingController();
-  final TextEditingController _customerNumberController =
-      TextEditingController();
+  final TextEditingController _customerNumberController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  ValueNotifier<String> _selectedCategory = ValueNotifier<String>('All');
+  ValueNotifier<String> _searchKeyword = ValueNotifier<String>('');
+
+  List<itemModel> _items = [];
 
   final FocusNode _focusNodeName = FocusNode();
   final FocusNode _focusNodeNumber = FocusNode();
@@ -45,10 +51,12 @@ class _BillingPageState extends State<BillingPage> {
 
   String _businessName = '';
   double allTotal = 0.0;
+
   @override
   void initState() {
     super.initState();
     _fetchBusinessName();
+    _fetchItems();
     _focusNodeName.addListener(() {
       setState(() {
         _isFocusedName = _focusNodeName.hasFocus;
@@ -61,6 +69,15 @@ class _BillingPageState extends State<BillingPage> {
     });
   }
 
+  @override
+  void dispose() {
+    _focusNodeName.dispose();
+    _focusNodeNumber.dispose();
+    _customerNameController.dispose();
+    _customerNumberController.dispose();
+    super.dispose();
+  }
+
   void _fetchBusinessName() async {
     final box = await Hive.openBox<userModel>('boxtiadb');
     List<userModel> users = box.values.toList();
@@ -69,6 +86,16 @@ class _BillingPageState extends State<BillingPage> {
         _businessName = users[0].bussinessName;
       });
     }
+  }
+
+  //FETCH ITEMS
+
+  void _fetchItems() async {
+    final Box = await Hive.openBox<itemModel>('boxtiaitemdb');
+    List<itemModel> items = Box.values.toList();
+    setState(() {
+      _items = items;
+    });
   }
 
   String capitalizeEachWord(String input) {
@@ -80,9 +107,7 @@ class _BillingPageState extends State<BillingPage> {
         .map((word) => word.isEmpty
             ? word
             : word[0].toUpperCase() +
-                word
-                    .substring(1)
-                    .toLowerCase()) // Capitalize the first letter and make the rest lowercase
+                word.substring(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
         .join(' '); // Join the words back together with spaces
   }
 
@@ -90,13 +115,11 @@ class _BillingPageState extends State<BillingPage> {
     String _CustomerName = _customerNameController.text;
     String _CustomerNumber = _customerNumberController.text;
 
-    customerModel saveCustomer = customerModel(
-        customerNameM: _CustomerName, customerNumberM: _CustomerNumber);
+    customerModel saveCustomer = customerModel(customerNameM: _CustomerName, customerNumberM: _CustomerNumber);
 
     await addCustomerF(saveCustomer);
 
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => InvoicePage()));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => InvoicePage()));
   }
 
   @override
@@ -107,373 +130,551 @@ class _BillingPageState extends State<BillingPage> {
       double total = price * item.QuantityM;
       return sum + total;
     });
-    return Container(
-      color: AppColor.safeArea,
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: AppColor.scaffold,
-          appBar: AppBar(
-            elevation: 10,
-            backgroundColor: AppColor.appBar,
-            automaticallyImplyLeading: false,
-            title: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                _businessName.isNotEmpty ? _businessName : "BOXTIA",
-                style: GoogleFonts.goldman(
-                  textStyle: const TextStyle(
-                    color: Colors.cyanAccent,
-                    fontSize: 25,
-                    letterSpacing: -1,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            actions: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10.0),
-                    child: Text(
-                      "BILLING",
-                      style: GoogleFonts.mogra(
-                        textStyle: const TextStyle(
-                          decorationColor: Colors.tealAccent,
-                          color: AppColor.white,
-                          fontSize: 20,
-                          letterSpacing: 1,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Container(
+        color: AppColor.safeArea,
+        child: SafeArea(
+          child: Scaffold(
+            backgroundColor: AppColor.scaffold,
+            appBar: AppBar(
+              elevation: 10,
+              backgroundColor: AppColor.appBar,
+              automaticallyImplyLeading: false,
+              title: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  _businessName.isNotEmpty ? _businessName : "BOXTIA",
+                  style: GoogleFonts.goldman(
+                    textStyle: const TextStyle(
+                      color: Colors.cyanAccent,
+                      fontSize: 25,
+                      letterSpacing: -1,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-            ],
-            toolbarHeight: 85,
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: widget.selectedItems.length,
-                    itemBuilder: (context, index) {
-                      final item = widget.selectedItems[index];
-
-                      // PRICE AND QUANTITY CALCULATION
-
-                      double price = double.tryParse(item.PriceM) ?? 0.0;
-                      double total = price * item.QuantityM;
-
-                      return Card(
-                        child: ListTile(
-                          leading: item.ItemPicM.isNotEmpty
-                              ? Image.file(
-                                  File(item.ItemPicM),
-                                  width: 90,
-                                  height: 100,
-                                  fit: BoxFit.contain,
-                                )
-                              : Image.asset('lib/asset/no-image.png'),
-                          title: Text(
-                            item.ItemNameM,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.josefinSans(
-                              textStyle: const TextStyle(
-                                  decorationColor: Colors.tealAccent,
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: -1,
-                                  fontSize: 22),
-                            ),
-                          ),
-                          subtitle: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Quantity:',
-                                    style: GoogleFonts.arvo(
-                                      textStyle: const TextStyle(
-                                          color:
-                                              Color.fromARGB(255, 235, 177, 2),
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: -.5,
-                                          fontSize: 13),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    '${item.QuantityM}',
-                                    style: GoogleFonts.arvo(
-                                      textStyle: const TextStyle(
-                                        color: Color.fromARGB(255, 12, 73, 216),
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 30,
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '${item.PriceM} x ${item.QuantityM}',
-                                        textAlign: TextAlign.end,
-                                        style: GoogleFonts.arvo(
-                                          textStyle: const TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            '\u{20B9}',
-                                            textAlign: TextAlign.end,
-                                          ),
-                                          Text(
-                                            textAlign: TextAlign.end,
-                                            '$total',
-                                            style: GoogleFonts.arvo(
-                                              textStyle: const TextStyle(
-                                                color: Color.fromARGB(
-                                                    255, 4, 76, 136),
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              ),
+              actions: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      'Total : ',
-                      style: GoogleFonts.arvo(
-                        textStyle: const TextStyle(
-                          color: Color.fromARGB(255, 4, 76, 136),
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '$allTotal',
-                      style: GoogleFonts.arvo(
-                        textStyle: const TextStyle(
-                          color: Color.fromARGB(255, 4, 76, 136),
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10.0),
+                      child: Text(
+                        "BILLING",
+                        style: GoogleFonts.mogra(
+                          textStyle: const TextStyle(
+                            decorationColor: Colors.tealAccent,
+                            color: AppColor.white,
+                            fontSize: 20,
+                            letterSpacing: 1,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-
-                //CUSTOMER DETAILES
-
-                Padding(
-                  padding: const EdgeInsets.only(right: 200.0),
-                  child: Text(
-                    'Customer Details',
-                    style: GoogleFonts.arvo(
-                      textStyle: TextStyle(
-                          color: AppColor.textFormBorder,
-                          fontSize: 15,
-                          letterSpacing: -1,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-
-                //CUSTOMER NAME
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextFormField(
-                    textCapitalization: TextCapitalization.words,
-                    focusNode: _focusNodeName,
-                    style: TextStyle(
-                      color: Colors.green,
-                    ),
-                    keyboardType: TextInputType.name,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(12),
-                    ],
-                    controller: _customerNameController,
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color:AppColor.textFormBorder)),
-                      labelText: 'Enter Customer Name Here',
-                      suffixIcon: _isFocusedName
-                          ? IconButton(
-                              onPressed: _clearCname,
-                              icon: Icon(
-                                Icons.clear,
-                                color: Colors.red,
-                              ),
-                            )
-                          : null,
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: Colors.green),
-                      ),
-                    ),
-                  ),
-                ),
-
-                //CUSTOMER NUMBER
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextFormField(
-                    focusNode: _focusNodeNumber,
-                    style: TextStyle(
-                      color: Colors.green,
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    controller: _customerNumberController,
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color:AppColor.textFormBorder)),
-                      labelText: 'Enter Customer Number Here',
-                      suffixIcon: _isFocusedNumber
-                          ? IconButton(
-                              onPressed: _clearCnumber,
-                              icon: Icon(
-                                Icons.clear,
-                                color: Colors.red,
-                              ),
-                            )
-                          : null,
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(color: Colors.green),
-                      ),
-                    ),
-                  ),
                 ),
               ],
+              toolbarHeight: 85,
             ),
-          ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(top: 76.0),
-            child: FloatingActionButton(
-              splashColor: Colors.lightBlueAccent,
-              elevation: 20,
-              onPressed: () {
-                _registerCustomer(context);
-              },
-              child: Text(
-                'SELL',
-                style: GoogleFonts.arvo(
-                  textStyle: TextStyle(
-                    color: Colors.cyanAccent[100],
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: widget.selectedItems.length,
+                      itemBuilder: (context, index) {
+                        final item = widget.selectedItems[index];
+
+                        // PRICE AND QUANTITY CALCULATION
+
+                        double price = double.tryParse(item.PriceM) ?? 0.0;
+                        double total = price * item.QuantityM;
+
+                        return Card(
+                          child: ListTile(
+                            leading: item.ItemPicM.isNotEmpty
+                                ? Image.file(
+                                    File(item.ItemPicM),
+                                    width: 90,
+                                    height: 100,
+                                    fit: BoxFit.contain,
+                                  )
+                                : Image.asset('lib/asset/no-image.png'),
+                            title: Text(
+                              item.ItemNameM,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.josefinSans(
+                                textStyle: const TextStyle(
+                                    decorationColor: Colors.tealAccent,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: -1,
+                                    fontSize: 22),
+                              ),
+                            ),
+                            subtitle: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Quantity:',
+                                      style: GoogleFonts.arvo(
+                                        textStyle: const TextStyle(
+                                            color: Color.fromARGB(255, 235, 177, 2),
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: -.5,
+                                            fontSize: 13),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      '${item.QuantityM}',
+                                      style: GoogleFonts.arvo(
+                                        textStyle: const TextStyle(
+                                          color: Color.fromARGB(255, 12, 73, 216),
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 30,
+                                    ),
+                                    Column(
+                                      children: [
+                                        Text(
+                                          '${item.PriceM} x ${item.QuantityM}',
+                                          textAlign: TextAlign.end,
+                                          style: GoogleFonts.arvo(
+                                            textStyle: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              '\u{20B9}',
+                                              textAlign: TextAlign.end,
+                                            ),
+                                            Text(
+                                              textAlign: TextAlign.end,
+                                              '$total',
+                                              style: GoogleFonts.arvo(
+                                                textStyle: const TextStyle(
+                                                  color: Color.fromARGB(255, 4, 76, 136),
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ),
-              backgroundColor: AppColor.floating,
-            ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Total : ',
+                        style: GoogleFonts.arvo(
+                          textStyle: const TextStyle(
+                            color: Color.fromARGB(255, 4, 76, 136),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '$allTotal',
+                        style: GoogleFonts.arvo(
+                          textStyle: const TextStyle(
+                            color: Color.fromARGB(255, 4, 76, 136),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+
+                  //CUSTOMER DETAILES
+
+                  Padding(
+                    padding: const EdgeInsets.only(right: 220.0),
+                    child: Text(
+                      'Customer Details',
+                      style: GoogleFonts.arvo(
+                        textStyle: TextStyle(
+                            color: AppColor.textFormBorder,
+                            fontSize: 15,
+                            letterSpacing: -1,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+
+                  //CUSTOMER NAME
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: TextFormField(
+                      textCapitalization: TextCapitalization.words,
+                      focusNode: _focusNodeName,
+                      style: TextStyle(
+                        color: Colors.green,
+                      ),
+                      keyboardType: TextInputType.name,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(12),
+                      ],
+                      controller: _customerNameController,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide(color: AppColor.textFormBorder)),
+                        labelText: 'Enter Customer Name Here',
+                        suffixIcon: _isFocusedName
+                            ? IconButton(
+                                onPressed: _clearCname,
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: Colors.red,
+                                ),
+                              )
+                            : null,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: AppColor.lGreenAc),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  //CUSTOMER NUMBER
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: TextFormField(
+                      focusNode: _focusNodeNumber,
+                      style: TextStyle(
+                        color: Colors.green,
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      controller: _customerNumberController,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide(color: AppColor.textFormBorder)),
+                        labelText: 'Enter Customer Number Here',
+                        suffixIcon: _isFocusedNumber
+                            ? IconButton(
+                                onPressed: _clearCnumber,
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: Colors.red,
+                                ),
+                              )
+                            : null,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: AppColor.lGreenAc),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+  padding: const EdgeInsets.only(left: 20.0),
+  child: Row(
+    children: [
+      Text(
+        'Add Items',
+        style: GoogleFonts.arvo(
+          textStyle: TextStyle(
+            color: AppColor.textFormBorder,
+            fontSize: 15,
+            letterSpacing: -1,
+            fontWeight: FontWeight.bold,
           ),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
-            child: ClipPath(
-              clipper: ShapeBorderClipper(
-                shape: RoundedRectangleBorder(
+        ),
+      ),
+      IconButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: AppColor.scaffold,
                   borderRadius: BorderRadius.circular(15),
                 ),
+                child: SizedBox(
+                  height: 600,
+                  width: 400,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 230.0, top: 10),
+                        child: Text(
+                          'Select Items',
+                          style: GoogleFonts.arvo(
+                            textStyle: TextStyle(
+                              color: AppColor.itemName,
+                              fontSize: 15,
+                              letterSpacing: -1,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SearchBar(
+                          leading: Icon(Linecons.search),
+                          controller: _searchController,
+                          onChanged: (value) {
+                            setState(() {
+                              _searchKeyword.value = value;
+                            });
+                          },
+                          hintText: 'Search Item Here...',
+                        ),
+                      ),
+                      Expanded(
+                        child: ValueListenableBuilder<String>(
+                          valueListenable: _searchKeyword,
+                          builder: (context, searchKeyword, child) {
+                            List<itemModel> filteredItems = _items
+                              .where((item) => item.ItemNameM.toLowerCase()
+                                  .contains(searchKeyword.toLowerCase()))
+                              .toList();
+
+                            return ListView.builder(
+                              itemCount: filteredItems.length,
+                              itemBuilder: (context, index) {
+                                final item = filteredItems[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 0.0, horizontal: 5
+                                  ),
+                                  child: Card(
+                                    shadowColor: Colors.lightBlueAccent,
+                                    surfaceTintColor: Colors.lightBlueAccent,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: ListTile(
+                                        leading: ClipRRect(
+                                          borderRadius: BorderRadius.circular(15),
+                                          child: Image.file(
+                                            File(item.ItemPicM),
+                                            width: 90,
+                                            height: 100,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                        title: Text(
+                                          item.ItemNameM,
+                                          style: GoogleFonts.arvo(
+                                            textStyle: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: -0.5,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ),
+                                        subtitle: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            '\u{20B9}',
+                            style: TextStyle(
+                              color: AppColor.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            item.PriceM,
+                            style: TextStyle(
+                              color: AppColor.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              'count = ',
+                              style: GoogleFonts.robotoSlab(
+                                textStyle: const TextStyle(
+                                  color: Color.fromARGB(255, 162, 154, 154),
+                                  fontSize: 15,
+                                  letterSpacing: -1,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 3.0),
+                              child: Text(
+                                item.CountM,
+                                style: TextStyle(
+                                  color: AppColor.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+        icon: Icon(
+          FontAwesome.plus,
+          size: 30,
+          color: AppColor.lGreenAc,
+        ),
+      )
+    ],
+  ),
+),
+
+                ],
               ),
-              child: BottomAppBar(
-                
-                shape: const CircularNotchedRectangle(),
-                notchMargin: 10.0,
-                color: AppColor.bottomBar,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      tooltip: 'profile',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Profile_Page(),
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        Typicons.user_outline,
-                        size: 32,
-                      ),
-                      color: AppColor.white,
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.only(top: 76.0),
+              child: FloatingActionButton(
+                splashColor: Colors.lightBlueAccent,
+                elevation: 20,
+                onPressed: () {
+                  _registerCustomer(context);
+                },
+                child: Text(
+                  'SELL',
+                  style: GoogleFonts.arvo(
+                    textStyle: TextStyle(
+                      color: Colors.cyanAccent[100],
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
                     ),
-                    IconButton(
-                      tooltip: 'stock',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Stock_Page(),
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        FontAwesome5.boxes,
-                        size: 30,
+                  ),
+                ),
+                backgroundColor: AppColor.floating,
+              ),
+            ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
+              child: ClipPath(
+                clipper: ShapeBorderClipper(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: BottomAppBar(
+                  shape: const CircularNotchedRectangle(),
+                  notchMargin: 10.0,
+                  color: AppColor.bottomBar,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        tooltip: 'profile',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Profile_Page(),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Typicons.user_outline,
+                          size: 32,
+                        ),
+                        color: AppColor.white,
                       ),
-                      color: AppColor.white,
-                    ),
-                    IconButton(
-                      tooltip: 'product',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Product_Page(),
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        Zocial.paypal,
-                        size: 30,
+                      IconButton(
+                        tooltip: 'stock',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Stock_Page(),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          FontAwesome5.boxes,
+                          size: 30,
+                        ),
+                        color: AppColor.white,
                       ),
-                      color: AppColor.white,
-                    ),
-                  ],
+                      IconButton(
+                        tooltip: 'product',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Product_Page(),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Zocial.paypal,
+                          size: 30,
+                        ),
+                        color: AppColor.white,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
