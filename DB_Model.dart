@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 part 'DB_Model.g.dart';
 
+
 @HiveType(typeId: 0)
 class userModel extends HiveObject {
   @HiveField(0)
@@ -37,6 +38,10 @@ class itemModel extends HiveObject {
   String PriceM;
   @HiveField(5)
   String BrandM;
+  @HiveField(6)
+  String CountM;
+  @HiveField(7)
+  int QuantityM;
 
   itemModel({
     required this.ItemPicM,
@@ -45,5 +50,21 @@ class itemModel extends HiveObject {
     required this.ColorM,
     required this.PriceM,
     required this.BrandM,
+    this.CountM = '0',
+    this.QuantityM = 0,
+  });
+  get QuatityM => null;
+}
+
+@HiveType(typeId: 2)
+class customerModel extends HiveObject {
+  @HiveField(0)
+  String customerNameM;
+  @HiveField(1)
+  String customerNumberM;
+
+  customerModel({
+    this.customerNameM = '',
+    this.customerNumberM = '',
   });
 }
