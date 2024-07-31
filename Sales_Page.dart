@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:boxtia_inventory/Featurs/App_Bar.dart';
 import 'package:boxtia_inventory/Featurs/Bottom_AppBar.dart';
+import 'package:boxtia_inventory/Screens/Home_Page.dart';
 import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:boxtia_inventory/Functions/DB_Functions.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
@@ -68,322 +69,331 @@ class _SalesPageState extends State<SalesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
+    return WillPopScope(
+       onWillPop: () async {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home_Page()),
+        );
+        return false;
+      },
+      child: Stack(
+        children: [
 
-//^ BACKGROUND IMAGE
+      //^ BACKGROUND IMAGE
 
-        Positioned.fill(
-            child: Image.asset(
-              'lib/asset/ScaffoldImage9.jpg',
-              fit: BoxFit.cover,
+          Positioned.fill(
+              child: Image.asset(
+                'lib/asset/ScaffoldImage9.jpg',
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-        SafeArea(
-          child: Scaffold(
-            backgroundColor: AppColor.scaffold,
+          SafeArea(
+            child: Scaffold(
+              backgroundColor: AppColor.scaffold,
 
-//^ APP BAR
+      //^ APP BAR
 
-            appBar: appBars("ADD SALES"),
+              appBar: appBars("ADD SALES"),
 
-//^ BODY
+      //^ BODY
 
-            body: _items.isEmpty
-                ? Center(child: Text('No items available!!!'))
-                : GridView.builder(
-                    itemCount: _items.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: .6,
-                    ),
-                    itemBuilder: (context, index) {
-                      final item = _items[index];
-                      final controller = _countControllers[index];
-                      final quantity = _quantities[index] ?? 0;
-                      int maxCount = int.parse(item.CountM);
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
-                         shadowColor: AppColor.white,
-                          color: AppColor.scaffold,
-                          child: ClipRRect(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 9, left: 10, right: 10),
-                                  child: SizedBox(
-//^ IMAGE
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: Image.file(
-                                        File(item.ItemPicM),
-                                        width: 130,
-                                        height: 90,
-                                        alignment: Alignment.center,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-//^ ITEM NAME
-                                Text(
-                                  item.ItemNameM,
-                                  style: GoogleFonts.robotoSlab(
-                                    textStyle: const TextStyle(
-                                      color: AppColor.itemName,
-                                      fontSize: 20,
-                                      letterSpacing: -1,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-//^ PRICE
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 3.0),
-                                      child: Text('\u{20B9}'),
-                                    ),
-                                    Text(
-                                      item.PriceM,
-                                      style: GoogleFonts.arvo(
-                                        textStyle: const TextStyle(
-                                          color: Color.fromARGB(255, 4, 76, 136),
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
+              body: _items.isEmpty
+                  ? Center(child: Text('No items available!!!'))
+                  : GridView.builder(
+                      itemCount: _items.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: .6,
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = _items[index];
+                        final controller = _countControllers[index];
+                        final quantity = _quantities[index] ?? 0;
+                        int maxCount = int.parse(item.CountM);
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                           shadowColor: AppColor.white,
+                            color: AppColor.scaffold,
+                            child: ClipRRect(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 9, left: 10, right: 10),
+                                    child: SizedBox(
+      //^ IMAGE
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Image.file(
+                                          File(item.ItemPicM),
+                                          width: 130,
+                                          height: 90,
+                                          alignment: Alignment.center,
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-//^COUNT
-
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'count =',
-                                      style: GoogleFonts.robotoSlab(
-                                        textStyle: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontSize: 17,
-                                          letterSpacing: 0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                  ),
+      //^ ITEM NAME
+                                  Text(
+                                    item.ItemNameM,
+                                    style: GoogleFonts.robotoSlab(
+                                      textStyle: const TextStyle(
+                                        color: AppColor.itemName,
+                                        fontSize: 20,
+                                        letterSpacing: -1,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    SizedBox(
-                                      width: 12,
-                                    ),
-                                    ValueListenableBuilder(
-                                        valueListenable: boxtiaitemdb,
-                                        builder: (context, value, child) {
-                                          return Text(
-                                            value.isEmpty
-                                                ? item.CountM
-                                                : value.first.CountM.toString(),
-                                            style: GoogleFonts.arvo(
-                                              textStyle: const TextStyle(
-                                                color: Color.fromARGB(
-                                                    255, 12, 73, 216),
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          );
-                                        })
-                                  ],
-                                ),
-                                SizedBox(width: 5),
-                                Center(
-                                  child: Row(
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+      //^ PRICE
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-//^ COUNT --
                                       Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            SizedBox(width: 4),
-                                            Container(
-                                              width: 40,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                color:AppColor.textFormBorder,
-                                              ),
-                                              child: IconButton(
-                                                icon: Icon(
-                                                  FontAwesome5.minus,
-                                                  color:AppColor.white,
-                                                  size: 22,
-                                                ),
-                                                onPressed: () {
-                                                  if (quantity > 0) {
-                                                    _updateQuantity(index, -1);
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                            SizedBox(width: 5),
-//^ COUNT TEXT FIELD
-                                            Container(
-                                              width: 70,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                color:AppColor.textFormBorder,
-                                              ),
-                                              child: Center(
-                                                child: TextFormField(
-                                                  inputFormatters: [
-                                  LengthLimitingTextInputFormatter(
-                                                        3),
-                                                  ],
-                                                  style: GoogleFonts.robotoSlab(
-                                                    color:AppColor.white,
-                                                    fontSize: 23,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                  controller: controller,
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  textAlign: TextAlign.center,
-                                                  decoration: InputDecoration(
-                                                    border: InputBorder.none,
-                                                    contentPadding:
-                                                        EdgeInsets.only(
-                                                            bottom: 10),
-                                                  ),
-                                                  onChanged: (value) {
-                                                    int newValue =
-                                                        int.tryParse(value) ?? 0;
-                                                    if (newValue > maxCount) {
-                                                      controller?.text =
-                                                          maxCount.toString();
-                                                    } else {
-                                                      setState(() {
-                                                        _quantities[index] =
-                                                            newValue;
-                                                      });
-                                                    }
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(width: 5),
-//^ COUNT ++
-                                            Container(
-                                              width: 40,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                color:AppColor.textFormBorder,
-                                              ),
-                                              child: IconButton(
-                                                icon: Icon(
-                                                  FontAwesome5.plus,
-                                                  color:AppColor.white,
-                                                  size: 22,
-                                                ),
-                                                onPressed: () {
-                                                  _updateQuantity(index, 1);
-                                                },
-                                              ),
-                                            ),
-                                          ],
+                                        padding: const EdgeInsets.only(top: 3.0),
+                                        child: Text('\u{20B9}'),
+                                      ),
+                                      Text(
+                                        item.PriceM,
+                                        style: GoogleFonts.arvo(
+                                          textStyle: const TextStyle(
+                                            color: Color.fromARGB(255, 4, 76, 136),
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+      //^COUNT
+
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'count =',
+                                        style: GoogleFonts.robotoSlab(
+                                          textStyle: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontSize: 17,
+                                            letterSpacing: 0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 12,
+                                      ),
+                                      ValueListenableBuilder(
+                                          valueListenable: boxtiaitemdb,
+                                          builder: (context, value, child) {
+                                            return Text(
+                                              value.isEmpty
+                                                  ? item.CountM
+                                                  : value.first.CountM.toString(),
+                                              style: GoogleFonts.arvo(
+                                                textStyle: const TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 12, 73, 216),
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          })
+                                    ],
+                                  ),
+                                  SizedBox(width: 5),
+                                  Center(
+                                    child: Row(
+                                      children: [
+      //^ COUNT --
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              SizedBox(width: 4),
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  color:AppColor.textFormBorder,
+                                                ),
+                                                child: IconButton(
+                                                  icon: Icon(
+                                                    FontAwesome5.minus,
+                                                    color:AppColor.white,
+                                                    size: 22,
+                                                  ),
+                                                  onPressed: () {
+                                                    if (quantity > 0) {
+                                                      _updateQuantity(index, -1);
+                                                    }
+                                                  },
+                                                ),
+                                              ),
+                                              SizedBox(width: 5),
+      //^ COUNT TEXT FIELD
+                                              Container(
+                                                width: 70,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  color:AppColor.textFormBorder,
+                                                ),
+                                                child: Center(
+                                                  child: TextFormField(
+                                                    inputFormatters: [
+                                    LengthLimitingTextInputFormatter(
+                                                          3),
+                                                    ],
+                                                    style: GoogleFonts.robotoSlab(
+                                                      color:AppColor.white,
+                                                      fontSize: 23,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                    controller: controller,
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    textAlign: TextAlign.center,
+                                                    decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      contentPadding:
+                                                          EdgeInsets.only(
+                                                              bottom: 10),
+                                                    ),
+                                                    onChanged: (value) {
+                                                      int newValue =
+                                                          int.tryParse(value) ?? 0;
+                                                      if (newValue > maxCount) {
+                                                        controller?.text =
+                                                            maxCount.toString();
+                                                      } else {
+                                                        setState(() {
+                                                          _quantities[index] =
+                                                              newValue;
+                                                        });
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(width: 5),
+      //^ COUNT ++
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  color:AppColor.textFormBorder,
+                                                ),
+                                                child: IconButton(
+                                                  icon: Icon(
+                                                    FontAwesome5.plus,
+                                                    color:AppColor.white,
+                                                    size: 22,
+                                                  ),
+                                                  onPressed: () {
+                                                    _updateQuantity(index, 1);
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    ),
 
-//^ FLOATING BUTTON
+      //^ FLOATING BUTTON
 
-            floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-            floatingActionButton: Padding(
-              padding: const EdgeInsets.only(top: 76.0),
-              child: FloatingActionButton(
-                splashColor: Colors.lightBlueAccent,
-                elevation: 20,
-                onPressed: () {
-                 List<itemModel> selectedItems = [];
-        _quantities.forEach((index, quantity) {
-              if (quantity > 0) {
-        final updatedItem = _items[index];
-        final selectedItem = itemModel(
-          ItemNameM: updatedItem.ItemNameM,
-          PriceM: updatedItem.PriceM,
-          CountM: updatedItem.CountM,
-          ItemPicM: updatedItem.ItemPicM,
-          CategoryM: updatedItem.CategoryM,
-          ColorM: updatedItem.ColorM,
-          BrandM: updatedItem.BrandM,
-          QuantityM: quantity,
-        );
-        selectedItems.add(selectedItem);
-              }
-        });
-        Navigator.push(
-              context,
-              MaterialPageRoute(
-        builder: (context) => BillingPage(
-          selectedItems: selectedItems,
-        ),
-              ),
-        );
-                },
-                child: Text(
-                  'BILL',
-                  style: GoogleFonts.arvo(
-                    textStyle: TextStyle(
-                      color: Colors.cyanAccent[100],
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+              floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+              floatingActionButton: Padding(
+                padding: const EdgeInsets.only(top: 76.0),
+                child: FloatingActionButton(
+                  splashColor: Colors.lightBlueAccent,
+                  elevation: 20,
+                  onPressed: () {
+                   List<itemModel> selectedItems = [];
+          _quantities.forEach((index, quantity) {
+                if (quantity > 0) {
+          final updatedItem = _items[index];
+          final selectedItem = itemModel(
+            ItemNameM: updatedItem.ItemNameM,
+            PriceM: updatedItem.PriceM,
+            CountM: updatedItem.CountM,
+            ItemPicM: updatedItem.ItemPicM,
+            CategoryM: updatedItem.CategoryM,
+            ColorM: updatedItem.ColorM,
+            BrandM: updatedItem.BrandM,
+            QuantityM: quantity,
+          );
+          selectedItems.add(selectedItem);
+                }
+          });
+          Navigator.push(
+                context,
+                MaterialPageRoute(
+          builder: (context) => BillingPage(
+            selectedItems: selectedItems,
+          ),
+                ),
+          );
+                  },
+                  child: Text(
+                    'BILL',
+                    style: GoogleFonts.arvo(
+                      textStyle: TextStyle(
+                        color: Colors.cyanAccent[100],
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
+                  backgroundColor: AppColor.floating,
                 ),
-                backgroundColor: AppColor.floating,
               ),
-            ),
 
 
-//^ BOTTOM APP BAR
+      //^ BOTTOM APP BAR
 
-            bottomNavigationBar: Padding(
-              padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
-              child: ClipPath(
-                clipper: ShapeBorderClipper(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+              bottomNavigationBar: Padding(
+                padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
+                child: ClipPath(
+                  clipper: ShapeBorderClipper(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
+                  child: bottomNavBar(context),
                 ),
-                child: bottomNavBar(context),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
