@@ -1,19 +1,16 @@
 import 'dart:io';
 
+import 'package:boxtia_inventory/Featurs/App_Bar.dart';
+import 'package:boxtia_inventory/Featurs/Bottom_AppBar.dart';
 import 'package:boxtia_inventory/Functions/DB_Functions.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Product_Page.dart';
-import 'package:boxtia_inventory/Screens/Profile_Page.dart';
-import 'package:boxtia_inventory/Screens/Stock_Page.dart';
 import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
-import 'package:fluttericon/typicons_icons.dart';
-import 'package:fluttericon/zocial_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddItem extends StatefulWidget {
@@ -30,7 +27,7 @@ class _AddItemState extends State<AddItem> {
 
   String _selectedCategory = 'Mobiles';
   final _CatList = ['Mobiles', 'Tablet', 'Watch', 'Accessories'];
-  String _businessName = '';
+
   var _selectedBrand = 'Brands';
 
   final _brandList = [
@@ -57,7 +54,7 @@ class _AddItemState extends State<AddItem> {
 
   int _quantity = 0;
 
-  
+
 
   @override
   void dispose() {
@@ -85,19 +82,10 @@ class _AddItemState extends State<AddItem> {
   @override
   void initState() {
     super.initState();
-    _fetchBusinessName();
     _countController.text = _quantity.toString();
   }
 
-  void _fetchBusinessName() async {
-    final box = await Hive.openBox<userModel>('boxtiadb');
-    List<userModel> users = box.values.toList();
-    if (users.isNotEmpty) {
-      setState(() {
-        _businessName = users[0].bussinessName;
-      });
-    }
-  }
+
 
   Future<void> _saveItem(BuildContext context) async {
     String _iCategory = _selectedCategory;
@@ -106,7 +94,7 @@ class _AddItemState extends State<AddItem> {
     String _IColor = _ColorController.text;
     String _Iprice = _PriceController.text;
     String _countI = _countController.text.isNotEmpty ? _countController.text : '0';
-  
+
     if (_iCategory.isNotEmpty &&
         _iBrand != 'Add Brand' &&
         _iBrand.isNotEmpty &&
@@ -115,7 +103,7 @@ class _AddItemState extends State<AddItem> {
          pic != null &&
         _Iprice.isNotEmpty) {
       itemModel newItem = itemModel(
-        
+
           CategoryM: _iCategory,
           BrandM: _iBrand,
           ItemNameM: _Iname,
@@ -161,65 +149,30 @@ class _AddItemState extends State<AddItem> {
     }
   }
 
-  String capitalizeEachWord(String input) {
-  
-  if (input == null || input.isEmpty) return input;
-
-  return input
-      .split(' ') // Split the string into words
-      .map((word) => word.isEmpty ? word : word[0].toUpperCase() + word.substring(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
-      .join(' '); // Join the words back together with spaces
-}
 
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColor.safeArea,
-      child: SafeArea(
-        child: Scaffold(backgroundColor: AppColor.scaffold,
-          appBar: AppBar(
-            shadowColor: Colors.transparent,
-            elevation: 10,
-            backgroundColor: AppColor.appBar,
-            automaticallyImplyLeading: false,
-            title: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                _businessName.isNotEmpty ? _businessName : "BOXTIA",
-                style: GoogleFonts.goldman(
-                  textStyle: const TextStyle(
-                      color: Colors.cyanAccent,
-                      fontSize: 25,
-                      letterSpacing: -1,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
+    return Stack(
+      children: [
+
+//^ BACKGROUND IMAGE
+
+        Positioned.fill(
+            child: Image.asset(
+              'lib/asset/ScaffoldImage9.jpg',
+              fit: BoxFit.cover,
             ),
-            actions: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10.0),
-                    child: Text(
-                      "ADD ITEM",
-                      style: GoogleFonts.mogra(
-                        textStyle: const TextStyle(
-                            decorationColor: Colors.tealAccent,
-                            color:AppColor.white,
-                            fontSize: 20,
-                            letterSpacing: 1,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            toolbarHeight: 85,
           ),
+       SafeArea(
+        child: Scaffold(
+          backgroundColor: AppColor.scaffold,
+
+//^ APP BAR
+
+          appBar: appBars("ADD ITEM"),
+
+//^ BODY
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -426,6 +379,7 @@ class _AddItemState extends State<AddItem> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
+                        textCapitalization: TextCapitalization.words,
                         controller: _ColorController,
                         style: TextStyle(
                           color: Colors.cyanAccent[100],
@@ -494,7 +448,7 @@ class _AddItemState extends State<AddItem> {
                           fontSize: 18,
                           fontWeight: FontWeight.bold),
                     ),
-//COUNT --
+      //COUNT --
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: Row(
@@ -588,6 +542,9 @@ class _AddItemState extends State<AddItem> {
               ),
             ),
           ),
+
+        //FLOATING BUTTON
+
           floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
           floatingActionButton: Padding(
             padding: const EdgeInsets.only(top: 76.0),
@@ -610,6 +567,8 @@ class _AddItemState extends State<AddItem> {
               backgroundColor: AppColor.floating,
             ),
           ),
+
+          //BOTTOM APP BAR
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
             child: ClipPath(
@@ -618,65 +577,12 @@ class _AddItemState extends State<AddItem> {
                   borderRadius: BorderRadius.circular(15),
                 ),
               ),
-              child: BottomAppBar(
-                shadowColor: Colors.transparent,
-                shape: const CircularNotchedRectangle(),
-                notchMargin: 10.0,
-                color: AppColor.bottomBar,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      tooltip: 'profile',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Profile_Page(),
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        Typicons.user_outline,
-                        size: 32, 
-                      ),
-                      color:AppColor.white,
-                    ),
-                    IconButton(
-                      tooltip: 'stock',
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Stock_Page()));
-                      },
-                      icon: Icon(
-                        FontAwesome5.boxes,
-                        size: 30,
-                      ),
-                      color:AppColor.white,
-                    ),
-                    IconButton(
-                      tooltip: 'product',
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Product_Page()));
-                      },
-                      icon: Icon(
-                        Zocial.paypal,
-                        size: 30, // Reduced size
-                      ),
-                      color:AppColor.white,
-                    ),
-                  ],
-                ),
-              ),
+              child: bottomNavBar(context),
             ),
           ),
         ),
       ),
+      ]
     );
   }
 }
