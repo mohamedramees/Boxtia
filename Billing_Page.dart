@@ -1,19 +1,19 @@
 import 'dart:io';
 
+import 'package:boxtia_inventory/Featurs/App_Bar.dart';
+import 'package:boxtia_inventory/Featurs/Bottom_AppBar.dart';
 import 'package:boxtia_inventory/Functions/DB_Functions.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Invoice.dart';
-import 'package:boxtia_inventory/Screens/Product_Page.dart';
-import 'package:boxtia_inventory/Screens/Profile_Page.dart';
-import 'package:boxtia_inventory/Screens/Stock_Page.dart';
+import 'package:boxtia_inventory/Screens/Sales_Page.dart';
 import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttericon/elusive_icons.dart';
+import 'package:fluttericon/entypo_icons.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/linecons_icons.dart';
-import 'package:fluttericon/typicons_icons.dart';
-import 'package:fluttericon/zocial_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 
@@ -40,6 +40,8 @@ class _BillingPageState extends State<BillingPage> {
   final FocusNode _focusNodeName = FocusNode();
   final FocusNode _focusNodeNumber = FocusNode();
 
+
+
   bool _isFocusedName = false;
   bool _isFocusedNumber = false;
 
@@ -51,13 +53,14 @@ class _BillingPageState extends State<BillingPage> {
     _customerNumberController.clear();
   }
 
-  String _businessName = '';
   double allTotal = 0.0;
+
+
+//^INISTATE
 
   @override
   void initState() {
     super.initState();
-    _fetchBusinessName();
     _fetchItems();
     _focusNodeName.addListener(() {
       setState(() {
@@ -71,6 +74,8 @@ class _BillingPageState extends State<BillingPage> {
     });
   }
 
+//^ DISPOSE
+
   @override
   void dispose() {
     _focusNodeName.dispose();
@@ -80,17 +85,7 @@ class _BillingPageState extends State<BillingPage> {
     super.dispose();
   }
 
-  void _fetchBusinessName() async {
-    final box = await Hive.openBox<userModel>('boxtiadb');
-    List<userModel> users = box.values.toList();
-    if (users.isNotEmpty) {
-      setState(() {
-        _businessName = users[0].bussinessName;
-      });
-    }
-  }
-
-  //FETCH ITEMS
+ //^FETCH ITEMS
 
   void _fetchItems() async {
     final Box = await Hive.openBox<itemModel>('boxtiaitemdb');
@@ -100,18 +95,7 @@ class _BillingPageState extends State<BillingPage> {
     });
   }
 
-  String capitalizeEachWord(String input) {
-    // ignore: unnecessary_null_comparison
-    if (input == null || input.isEmpty) return input;
-
-    return input
-        .split(' ') // Split the string into words
-        .map((word) => word.isEmpty
-            ? word
-            : word[0].toUpperCase() +
-                word.substring(1).toLowerCase()) // Capitalize the first letter and make the rest lowercase
-        .join(' '); // Join the words back together with spaces
-  }
+//^ CUSTOMER REGISTRATION
 
   Future<void> _registerCustomer(BuildContext context) async {
     String _CustomerName = _customerNameController.text;
@@ -124,13 +108,13 @@ class _BillingPageState extends State<BillingPage> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => InvoicePage()));
   }
 
+//^ UPDATE QUANTITY
+
   void _updateQuantity(int index, int delta) {
     final currentItem = _items[index];
     int maxCount = int.parse(currentItem.CountM);
     int newQuantity = (_quantities[index] ?? 0) + delta;
     setState(() {
-
-
       if (newQuantity >= 0 && newQuantity <= maxCount) {
         _quantities[index] = newQuantity;
         _countControllers[index]?.text = newQuantity.toString();
@@ -138,670 +122,738 @@ class _BillingPageState extends State<BillingPage> {
     });
   }
 
+//^ DELETE ITEMS
+
+  Future<void> deleteBillingItem(int index) async {
+    setState(() {
+      widget.selectedItems.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // CALCULATE ALL TOTAL
+// ^CALCULATE ALL TOTAL
+
     allTotal = widget.selectedItems.fold(0.0, (sum, item) {
       double price = double.tryParse(item.PriceM) ?? 0.0;
       double total = price * item.QuantityM;
       return sum + total;
     });
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SalesPage()),
+        );
+        return false;
       },
-      child: Container(
-        color: AppColor.safeArea,
-        child: SafeArea(
-          child: Scaffold(
-            backgroundColor: AppColor.scaffold,
-            appBar: AppBar(
-              elevation: 10,
-              backgroundColor: AppColor.appBar,
-              automaticallyImplyLeading: false,
-              title: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  _businessName.isNotEmpty ? _businessName : "BOXTIA",
-                  style: GoogleFonts.goldman(
-                    textStyle: const TextStyle(
-                      color: Colors.cyanAccent,
-                      fontSize: 25,
-                      letterSpacing: -1,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Stack(
+          children: [
+      //^ BACKGROUND IMAGE
+
+            Positioned.fill(
+              child: Image.asset(
+                'lib/asset/ScaffoldImage9.jpg',
+                fit: BoxFit.cover,
               ),
-              actions: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10.0),
-                      child: Text(
-                        "BILLING",
-                        style: GoogleFonts.mogra(
-                          textStyle: const TextStyle(
-                            decorationColor: Colors.tealAccent,
-                            color: AppColor.white,
-                            fontSize: 20,
-                            letterSpacing: 1,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              toolbarHeight: 85,
             ),
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: widget.selectedItems.length,
-                      itemBuilder: (context, index) {
-                        final item = widget.selectedItems[index];
+            SafeArea(
+              child: Scaffold(
+                backgroundColor: AppColor.scaffold,
 
-                        // PRICE AND QUANTITY CALCULATION
+      //^APP BAR
 
-                        double price = double.tryParse(item.PriceM) ?? 0.0;
-                        double total = price * item.QuantityM;
+                appBar: appBars("BILLING"),
 
-                        return Card(
-                          child: ListTile(
-                            leading: item.ItemPicM.isNotEmpty
-                                ? Image.file(
-                                    File(item.ItemPicM),
-                                    width: 90,
-                                    height: 100,
-                                    fit: BoxFit.contain,
-                                  )
-                                : Image.asset('lib/asset/no-image.png'),
-                            title: Text(
-                              item.ItemNameM,
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.josefinSans(
-                                textStyle: const TextStyle(
-                                    decorationColor: Colors.tealAccent,
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: -1,
-                                    fontSize: 22),
-                              ),
-                            ),
-                            subtitle: Column(
-                              children: [
-                                Row(
+      //^BODY
+
+                body: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: widget.selectedItems.length,
+                          itemBuilder: (context, index) {
+                            final item = widget.selectedItems[index];
+
+      //^ PRICE AND QUANTITY CALCULATION
+
+                            double price = double.tryParse(item.PriceM) ?? 0.0;
+                            double total = price * item.QuantityM;
+      //^ MAIN LIST
+                            return Card(
+                              child: ListTile(
+                                leading: item.ItemPicM.isNotEmpty
+                                    ? Image.file(
+                                        File(item.ItemPicM),
+                                        width: 90,
+                                        height: 100,
+                                        fit: BoxFit.contain,
+                                      )
+                                    : Image.asset('lib/asset/no-image.png'),
+                                title: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Quantity:',
-                                      style: GoogleFonts.arvo(
+                                      item.ItemNameM,
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.josefinSans(
                                         textStyle: const TextStyle(
-                                            color: Color.fromARGB(255, 235, 177, 2),
+                                            decorationColor: Colors.tealAccent,
+                                            color: Colors.blue,
                                             fontWeight: FontWeight.bold,
-                                            letterSpacing: -.5,
-                                            fontSize: 13),
+                                            letterSpacing: -1,
+                                            fontSize: 22),
                                       ),
                                     ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      '${item.QuantityM}',
-                                      style: GoogleFonts.arvo(
-                                        textStyle: const TextStyle(
-                                          color: Color.fromARGB(255, 12, 73, 216),
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+      //^ DELETE BUTTON
+                                    IconButton(
+                                      onPressed: () {
+                                        deleteBillingItem(index);
+                                      },
+                                      icon: Icon(
+                                        Entypo.trash,
+                                        color: Colors.redAccent[400],
+                                        size: 20,
                                       ),
                                     ),
-                                    SizedBox(
-                                      width: 30,
-                                    ),
-                                    Column(
+                                  ],
+                                ),
+                                subtitle: Column(
+                                  children: [
+                                    Row(
                                       children: [
+      //^ QUANTITY TEXT
                                         Text(
-                                          '${item.PriceM} x ${item.QuantityM}',
-                                          textAlign: TextAlign.end,
+                                          'Quantity:',
                                           style: GoogleFonts.arvo(
                                             textStyle: const TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 15,
+                                                color: Color.fromARGB(255, 235, 177, 2),
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: -.5,
+                                                fontSize: 13),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+      //^ ITEM QUATITY
+                                        Text(
+                                          '${item.QuantityM}',
+                                          style: GoogleFonts.arvo(
+                                            textStyle: const TextStyle(
+                                              color: Color.fromARGB(255, 12, 73, 216),
+                                              fontSize: 17,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
-                                        Row(
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Column(
                                           children: [
+      //^ PRICE X QUANTITY
                                             Text(
-                                              '\u{20B9}',
+                                              '${item.PriceM} x ${item.QuantityM}',
                                               textAlign: TextAlign.end,
-                                            ),
-                                            Text(
-                                              textAlign: TextAlign.end,
-                                              '$total',
                                               style: GoogleFonts.arvo(
                                                 textStyle: const TextStyle(
-                                                  color: Color.fromARGB(255, 4, 76, 136),
+                                                  color: Colors.grey,
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
                                             ),
+                                            Row(
+                                              children: [
+      //^ ITEM TOTAL PRICE
+                                                Text(
+                                                  '\u{20B9}',
+                                                  textAlign: TextAlign.end,
+                                                ),
+                                                Text(
+                                                  textAlign: TextAlign.end,
+                                                  '$total',
+                                                  style: GoogleFonts.arvo(
+                                                    textStyle: const TextStyle(
+                                                      color: Color.fromARGB(255, 4, 76, 136),
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ],
-                                        ),
+                                        )
                                       ],
-                                    )
+                                    ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Total : ',
-                        style: GoogleFonts.arvo(
-                          textStyle: const TextStyle(
-                            color: Color.fromARGB(255, 4, 76, 136),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '$allTotal',
-                        style: GoogleFonts.arvo(
-                          textStyle: const TextStyle(
-                            color: Color.fromARGB(255, 4, 76, 136),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-
-                  //CUSTOMER DETAILES
-
-                  Padding(
-                    padding: const EdgeInsets.only(right: 220.0),
-                    child: Text(
-                      'Customer Details',
-                      style: GoogleFonts.arvo(
-                        textStyle: TextStyle(
-                            color: AppColor.textFormBorder,
-                            fontSize: 15,
-                            letterSpacing: -1,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-
-                  //CUSTOMER NAME
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: TextFormField(
-                      textCapitalization: TextCapitalization.words,
-                      focusNode: _focusNodeName,
-                      style: TextStyle(
-                        color: Colors.green,
-                      ),
-                      keyboardType: TextInputType.name,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(12),
-                      ],
-                      controller: _customerNameController,
-                      decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(color: AppColor.textFormBorder)),
-                        labelText: 'Enter Customer Name Here',
-                        suffixIcon: _isFocusedName
-                            ? IconButton(
-                                onPressed: _clearCname,
-                                icon: Icon(
-                                  Icons.clear,
-                                  color: Colors.red,
-                                ),
-                              )
-                            : null,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: AppColor.lGreenAc),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  //CUSTOMER NUMBER
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: TextFormField(
-                      focusNode: _focusNodeNumber,
-                      style: TextStyle(
-                        color: Colors.green,
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(10),
-                      ],
-                      controller: _customerNumberController,
-                      decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(color: AppColor.textFormBorder)),
-                        labelText: 'Enter Customer Number Here',
-                        suffixIcon: _isFocusedNumber
-                            ? IconButton(
-                                onPressed: _clearCnumber,
-                                icon: Icon(
-                                  Icons.clear,
-                                  color: Colors.red,
-                                ),
-                              )
-                            : null,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: AppColor.lGreenAc),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-  padding: const EdgeInsets.only(left: 20.0),
-  child: Row(
-    children: [
-      Text(
-        'Add Items',
-        style: GoogleFonts.arvo(
-          textStyle: TextStyle(
-            color: AppColor.textFormBorder,
-            fontSize: 15,
-            letterSpacing: -1,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      IconButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (BuildContext context) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: AppColor.scaffold,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: SizedBox(
-                  height: 600,
-                  width: 400,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 230.0, top: 10),
-                        child: Text(
-                          'Select Items',
-                          style: GoogleFonts.arvo(
-                            textStyle: TextStyle(
-                              color: AppColor.itemName,
-                              fontSize: 15,
-                              letterSpacing: -1,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SearchBar(
-                          leading: Icon(Linecons.search),
-                          controller: _searchController,
-                          onChanged: (value) {
-                            setState(() {
-                              _searchKeyword.value = value;
-                            });
-                          },
-                          hintText: 'Search Item Here...',
-                        ),
-                      ),
-                      Expanded(
-                        child: ValueListenableBuilder<String>(
-                          valueListenable: _searchKeyword,
-                          builder: (context, searchKeyword, child) {
-                            List<itemModel> filteredItems = _items
-                              .where((item) => item.ItemNameM.toLowerCase()
-                                  .contains(searchKeyword.toLowerCase()))
-                              .toList();
-
-                            return ListView.builder(
-                              itemCount: filteredItems.length,
-                              itemBuilder: (context, index) {
-                                final item = filteredItems[index];
-                                final quantity = _quantities[index] ?? 0;
-                                final controller = _countControllers[index];
-                                int maxCount = int.parse(item.CountM);
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 0.0, horizontal: 5
-                                  ),
-                                  child: Card(
-                                    shadowColor: Colors.lightBlueAccent,
-                                    surfaceTintColor: Colors.lightBlueAccent,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: ListTile(
-  leading: ClipRRect(
-    borderRadius: BorderRadius.circular(15),
-    child: Image.file(
-      File(item.ItemPicM),
-      width: 90,
-      height: 100,
-      fit: BoxFit.contain,
-    ),
-  ),
-  title: Text(
-    item.ItemNameM,
-    style: GoogleFonts.arvo(
-      textStyle: TextStyle(
-        color: AppColor.itemName,
-        fontWeight: FontWeight.bold,
-        letterSpacing: -0.5,
-        fontSize: 16,
-      ),
-    ),
-  ),
-  subtitle: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Text(
-                '\u{20B9}',
-                style: TextStyle(
-                  color: AppColor.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                item.PriceM,
-                style: TextStyle(
-                  color: AppColor.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6.0),
-            child: Row(
-              children: [
-                Text(
-                  'count = ',
-                  style: GoogleFonts.robotoSlab(
-                    textStyle: const TextStyle(
-                      color: Color.fromARGB(255, 162, 154, 154),
-                      fontSize: 15,
-                      letterSpacing: -1,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 3.0),
-                  child: Text(
-                    item.CountM,
-                    style: TextStyle(
-                      color: AppColor.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-
-      // New widget added below the existing content
-      
-      Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Center(
-          child: Row(
-            children: [
-
-              // COUNT --
-
-              Container(
-                width: 35,
-                height: 35,
-                decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),                  color: AppColor.textFormBorder,
-             ),
-            child: IconButton(
-             onPressed: (){
-               if (quantity > 0)
-              {
-               _updateQuantity(index, -1);
-              }
-             },
-             icon:Icon(
-              FontAwesome5.minus,
-              color: AppColor.white,
-              size: 15,
-              ),
-              ),
-              ),
-SizedBox(width: 5,),
-              // COUNT TEXT FIELD
-
-              Container(
-                width: 50,
-                height: 35,
-          decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: AppColor.textFormBorder,
-          ),
-          child: Center(
-            child: TextFormField(
-             inputFormatters: [
-                                      LengthLimitingTextInputFormatter(3),
-                                    ],
-                                    style: GoogleFonts.robotoSlab(
-                                      color: AppColor.white,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    controller: _countControllers[index] ??= TextEditingController(text: '0'),
-
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.only(bottom: 10),
-                                    ),
-                                    onChanged: (value) {
-                                      int newValue = int.tryParse(value) ?? 0;
-                                      if (newValue > maxCount) {
-                                        controller?.text = maxCount.toString();
-                                      } else {
-                                        setState(() {
-                                          _quantities[index] = newValue;
-                                        });
-                                      }
-                                    },
-            ),
-          ),
-              ),
-SizedBox(width: 5,),
-              // COUNT ++
-
-              Container(
-                width: 35,
-                height: 35,
-              decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: AppColor.textFormBorder,
-              ),
-              child:IconButton(
-                                  icon: Icon(
-                                    FontAwesome5.plus,
-                                    color: AppColor.white,
-                                    size: 15,
-                                  ),
-                                  onPressed: () {
-                                    _updateQuantity(index, 1);
-                                  },
-                                ) ,
-              ),
-            ],
-          )
-        ),
-      ),
-    ],
-  ),
-)
-
-                                    ),
-                                  ),
-                                );
-                              },
+                              ),
                             );
                           },
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-        icon: Icon(
-          FontAwesome.plus,
-          size: 30,
-          color: AppColor.lGreenAc,
-        ),
-      )
-    ],
-  ),
-),
 
-                ],
-              ),
-            ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-            floatingActionButton: Padding(
-              padding: const EdgeInsets.only(top: 76.0),
-              child: FloatingActionButton(
-                splashColor: Colors.lightBlueAccent,
-                elevation: 20,
-                onPressed: () {
-                  _registerCustomer(context);
-                },
-                child: Text(
-                  'SELL',
-                  style: GoogleFonts.arvo(
-                    textStyle: TextStyle(
-                      color: Colors.cyanAccent[100],
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                backgroundColor: AppColor.floating,
-              ),
-            ),
-            bottomNavigationBar: Padding(
-              padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
-              child: ClipPath(
-                clipper: ShapeBorderClipper(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                child: BottomAppBar(
-                  shape: const CircularNotchedRectangle(),
-                  notchMargin: 10.0,
-                  color: AppColor.bottomBar,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      IconButton(
-                        tooltip: 'profile',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Profile_Page(),
+      //^ TOTAL PRICE
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Total : \u{20B9} ',
+                            style: GoogleFonts.arvo(
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 4, 76, 136),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          );
-                        },
-                        icon: Icon(
-                          Typicons.user_outline,
-                          size: 32,
-                        ),
-                        color: AppColor.white,
+                          ),
+                          Text(
+                            '$allTotal',
+                            style: GoogleFonts.arvo(
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 4, 76, 136),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        tooltip: 'stock',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Stock_Page(),
-                            ),
-                          );
-                        },
-                        icon: Icon(
-                          FontAwesome5.boxes,
-                          size: 30,
-                        ),
-                        color: AppColor.white,
+                      SizedBox(
+                        height: 20,
                       ),
-                      IconButton(
-                        tooltip: 'product',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Product_Page(),
-                            ),
-                          );
-                        },
-                        icon: Icon(
-                          Zocial.paypal,
-                          size: 30,
+
+      //^ CUSTOMER DETAILES
+
+                      Padding(
+                        padding: const EdgeInsets.only(right: 220.0),
+                        child: Text(
+                          'Customer Details',
+                          style: GoogleFonts.arvo(
+                            textStyle: TextStyle(
+                                color: AppColor.textFormBorder,
+                                fontSize: 15,
+                                letterSpacing: -1,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
-                        color: AppColor.white,
+                      ),
+
+      //^ CUSTOMER NAME
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: TextFormField(
+                          textCapitalization: TextCapitalization.words,
+                          focusNode: _focusNodeName,
+                          style: TextStyle(
+                            decoration: TextDecoration.none,
+                            color: AppColor.white,
+                          ),
+                          keyboardType: TextInputType.name,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(12),
+                          ],
+                          controller: _customerNameController,
+                          decoration: InputDecoration(
+
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide(color: AppColor.textFormBorder)),
+                            labelText: 'Enter Customer Name Here',
+                            suffixIcon: _isFocusedName
+                                ? IconButton(
+                                    onPressed: _clearCname,
+                                    icon: Icon(
+                                      Icons.clear,
+                                      color: Colors.red,
+                                    ),
+                                  )
+                                : null,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(color: AppColor.lGreenAc),
+                            ),
+                          ),
+                        ),
+                      ),
+
+      //^ CUSTOMER NUMBER
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: TextFormField(
+                          focusNode: _focusNodeNumber,
+                          style: TextStyle(
+                            color: AppColor.white,
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          controller: _customerNumberController,
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide(color: AppColor.textFormBorder)),
+                            labelText: 'Enter Customer Number Here',
+                            suffixIcon: _isFocusedNumber
+                                ? IconButton(
+                                    onPressed: _clearCnumber,
+                                    icon: Icon(
+                                      Icons.clear,
+                                      color: Colors.red,
+                                    ),
+                                  )
+                                : null,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(color: AppColor.lGreenAc),
+                            ),
+                          ),
+                        ),
+                      ),
+
+      //^ ADD ITEMS
+
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Add Items',
+                              style: GoogleFonts.arvo(
+                                textStyle: TextStyle(
+                                  color: AppColor.textFormBorder,
+                                  fontSize: 15,
+                                  letterSpacing: -1,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+
+      //^ BOTTM SHEET
+
+                            IconButton(
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  backgroundColor: AppColor.scaffold,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return DraggableScrollableSheet(
+                                        initialChildSize: .89,
+                                        builder: (BuildContext context, ScrollController scrollController) {
+                                          return Container(
+                                            decoration: BoxDecoration(
+                                              color: AppColor.scaffold,
+                                              borderRadius: BorderRadius.circular(15),
+                                            ),
+                                            child: SizedBox(
+                                              height: 800,
+                                              width: 400,
+                                              child: Column(
+                                                children: [
+
+
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(
+                                                      left: 275.0,
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+      //^ CLOSE ICON
+                                                        IconButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(context);
+                                                            },
+                                                            icon: Icon(
+                                                              Elusive.down,
+                                                              color: AppColor.white,
+                                                            )),
+      //^ SAVE BUTTON
+                                                             ElevatedButton(onPressed: (){
+
+                                                              List<itemModel> selectedItems = [];
+          _quantities.forEach((index, quantity) {
+                if (quantity > 0) {
+          final updatedItem = _items[index];
+          final selectedItem = itemModel(
+            ItemNameM: updatedItem.ItemNameM,
+            PriceM: updatedItem.PriceM,
+            CountM: updatedItem.CountM,
+            ItemPicM: updatedItem.ItemPicM,
+            CategoryM: updatedItem.CategoryM,
+            ColorM: updatedItem.ColorM,
+            BrandM: updatedItem.BrandM,
+            QuantityM: quantity,
+          );
+          selectedItems.add(selectedItem);
+                }
+          });
+          Navigator.push(
+                context,
+                MaterialPageRoute(
+          builder: (context) => BillingPage(
+            selectedItems: selectedItems,
+          ),
+                ),
+          );
+                                                             },
+                                                        child: Text('save'),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(right: 230.0, top: 10),
+                                                    child:
+
+      //^ SELECT ITEMS
+                                                        Padding(
+                                                      padding: const EdgeInsets.only(right: 35.0),
+                                                      child: Text(
+                                                        'Select Items',
+                                                        style: GoogleFonts.arvo(
+                                                          textStyle: TextStyle(
+                                                            color: AppColor.white,
+                                                            fontSize: 15,
+                                                            letterSpacing: -1,
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+
+      //^ SEARCH FIELD
+                                                  Padding(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
+                                                      child: TextField(
+                                                        controller: _searchController,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            _searchKeyword.value = value;
+                                                          });
+                                                        },
+                                                        decoration: InputDecoration(
+                                                          hintText: 'Search Item Here...',
+                                                          filled: true,
+                                                          fillColor: Colors.white,
+                                                          border: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(15),
+                                                            borderSide: BorderSide.none,
+                                                          ),
+                                                          prefixIcon: Icon(Linecons.search),
+                                                          suffixIcon: _searchController.text.isNotEmpty
+                                                              ? IconButton(
+                                                                  icon: Icon(Icons.clear, color: Colors.black),
+                                                                  onPressed: () {
+                                                                    setState(() {
+                                                                      _searchController.clear();
+                                                                      _searchKeyword.value = '';
+                                                                    });
+                                                                  },
+                                                                )
+                                                              : null,
+                                                        ),
+                                                      )),
+
+      //^ BOTTOM SHEET LIST
+
+                                                  Expanded(
+                                                    child: ValueListenableBuilder<String>(
+                                                      valueListenable: _searchKeyword,
+                                                      builder: (context, searchKeyword, child) {
+                                                        List<itemModel> filteredItems = _items
+                                                            .where((item) => item.ItemNameM.toLowerCase()
+                                                                .contains(searchKeyword.toLowerCase()))
+                                                            .toList();
+
+                                                        return ListView.builder(
+                                                          itemCount: filteredItems.length,
+                                                          itemBuilder: (context, index) {
+                                                            final item = filteredItems[index];
+                                                            final quantity = _quantities[index] ?? 0;
+                                                            final controller = _countControllers[index];
+                                                            int maxCount = int.parse(item.CountM);
+                                                            return Padding(
+                                                              padding: const EdgeInsets.symmetric(
+                                                                  vertical: 0.0, horizontal: 5),
+                                                              child: Card(
+                                                                shadowColor: Colors.lightBlueAccent,
+                                                                surfaceTintColor: Colors.lightBlueAccent,
+                                                                child: Padding(
+                                                                    padding: const EdgeInsets.all(12.0),
+                                                                    child: ListTile(
+                                                                      leading: ClipRRect(
+                                                                        borderRadius: BorderRadius.circular(15),
+                                                                        child: Image.file(
+                                                                          File(item.ItemPicM),
+                                                                          width: 90,
+                                                                          height: 100,
+                                                                          fit: BoxFit.contain,
+                                                                        ),
+                                                                      ),
+                                                                      title: Text(
+                                                                        item.ItemNameM,
+                                                                        style: GoogleFonts.arvo(
+                                                                          textStyle: TextStyle(
+                                                                            color: AppColor.itemName,
+                                                                            fontWeight: FontWeight.bold,
+                                                                            letterSpacing: -0.5,
+                                                                            fontSize: 16,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      subtitle: Column(
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Row(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.spaceBetween,
+                                                                            children: [
+                                                                              Row(
+                                                                                children: [
+                                                                                  Text(
+                                                                                    '\u{20B9}',
+                                                                                    style: TextStyle(
+                                                                                      color: AppColor.black,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                    ),
+                                                                                  ),
+                                                                                  Text(
+                                                                                    item.PriceM,
+                                                                                    style: TextStyle(
+                                                                                      color: AppColor.black,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                              Padding(
+                                                                                padding:
+                                                                                    const EdgeInsets.only(bottom: 6.0),
+                                                                                child: Row(
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      'count = ',
+                                                                                      style: GoogleFonts.robotoSlab(
+                                                                                        textStyle: const TextStyle(
+                                                                                          color: Color.fromARGB(
+                                                                                              255, 162, 154, 154),
+                                                                                          fontSize: 15,
+                                                                                          letterSpacing: -1,
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                    Padding(
+                                                                                      padding:
+                                                                                          const EdgeInsets.only(top: 3.0),
+                                                                                      child: Text(
+                                                                                        item.CountM,
+                                                                                        style: TextStyle(
+                                                                                          color: AppColor.black,
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+
+                                                                          // ^ ADD COUNTS
+
+                                                                          Padding(
+                                                                            padding: const EdgeInsets.only(top: 8.0),
+                                                                            child: Center(
+                                                                                child: Row(
+                                                                              children: [
+                                                                                //^ COUNT --
+
+                                                                                Container(
+                                                                                  width: 35,
+                                                                                  height: 35,
+                                                                                  decoration: BoxDecoration(
+                                                                                    borderRadius:
+                                                                                        BorderRadius.circular(10),
+                                                                                    color: AppColor.textFormBorder,
+                                                                                  ),
+                                                                                  child: IconButton(
+                                                                                    onPressed: () {
+                                                                                      if (quantity > 0) {
+                                                                                        _updateQuantity(index, -1);
+                                                                                      }
+                                                                                    },
+                                                                                    icon: Icon(
+                                                                                      FontAwesome5.minus,
+                                                                                      color: AppColor.white,
+                                                                                      size: 15,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                SizedBox(
+                                                                                  width: 5,
+                                                                                ),
+                                                                                //^ COUNT TEXT FIELD
+
+                                                                                Container(
+                                                                                  width: 50,
+                                                                                  height: 35,
+                                                                                  decoration: BoxDecoration(
+                                                                                    borderRadius:
+                                                                                        BorderRadius.circular(10),
+                                                                                    color: AppColor.textFormBorder,
+                                                                                  ),
+                                                                                  child: Center(
+                                                                                    child: TextFormField(
+                                                                                      inputFormatters: [
+                                                                                        LengthLimitingTextInputFormatter(
+                                                                                            3),
+                                                                                      ],
+                                                                                      style: GoogleFonts.robotoSlab(
+                                                                                        color: AppColor.white,
+                                                                                        fontSize: 22,
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                      ),
+                                                                                      controller:
+                                                                                          _countControllers[index] ??=
+                                                                                              TextEditingController(
+                                                                                                  text: '0'),
+                                                                                      keyboardType: TextInputType.number,
+                                                                                      textAlign: TextAlign.center,
+                                                                                      decoration: InputDecoration(
+                                                                                        border: InputBorder.none,
+                                                                                        contentPadding:
+                                                                                            EdgeInsets.only(bottom: 10),
+                                                                                      ),
+                                                                                      onChanged: (value) {
+                                                                                        int newValue =
+                                                                                            int.tryParse(value) ?? 0;
+                                                                                        if (newValue > maxCount) {
+                                                                                          controller?.text =
+                                                                                              maxCount.toString();
+                                                                                        } else {
+                                                                                          setState(() {
+                                                                                            _quantities[index] = newValue;
+                                                                                          });
+                                                                                        }
+                                                                                      },
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                SizedBox(
+                                                                                  width: 5,
+                                                                                ),
+                                                                                //^ COUNT ++
+
+                                                                                Container(
+                                                                                  width: 35,
+                                                                                  height: 35,
+                                                                                  decoration: BoxDecoration(
+                                                                                    borderRadius:
+                                                                                        BorderRadius.circular(10),
+                                                                                    color: AppColor.textFormBorder,
+                                                                                  ),
+                                                                                  child: IconButton(
+                                                                                    icon: Icon(
+                                                                                      FontAwesome5.plus,
+                                                                                      color: AppColor.white,
+                                                                                      size: 15,
+                                                                                    ),
+                                                                                    onPressed: () {
+                                                                                      _updateQuantity(index, 1);
+                                                                                    },
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            )),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    )),
+                                                              ),
+                                                            );
+                                                          },
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        });
+                                  },
+                                );
+                              },
+                              icon: Icon(
+                                FontAwesome.plus,
+                                size: 30,
+                                color: Colors.white70,
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
+
+      //^ FLOATING BUTTON
+
+                floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+                floatingActionButton: Padding(
+                  padding: const EdgeInsets.only(top: 76.0),
+                  child: FloatingActionButton(
+                    splashColor: Colors.lightBlueAccent,
+                    elevation: 20,
+                    onPressed: () {
+                      _registerCustomer(context);
+                    },
+                    child: Text(
+                      'SELL',
+                      style: GoogleFonts.arvo(
+                        textStyle: TextStyle(
+                          color: Colors.cyanAccent[100],
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    backgroundColor: AppColor.floating,
+                  ),
+                ),
+
+      //^ BOTTOM APP BAR
+
+                bottomNavigationBar: Padding(
+                  padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
+                  child: ClipPath(
+                    clipper: ShapeBorderClipper(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: bottomNavBar(context),
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
