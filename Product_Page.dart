@@ -1,26 +1,22 @@
 import 'dart:io';
 
 import 'package:anim_search_bar/anim_search_bar.dart';
+import 'package:boxtia_inventory/Featurs/App_Bar.dart';
+import 'package:boxtia_inventory/Featurs/Bottom_AppBar.dart';
+import 'package:boxtia_inventory/Featurs/FloatingButton.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
-import 'package:boxtia_inventory/Screens/Add_Item.dart';
 import 'package:boxtia_inventory/Screens/Edit_Page.dart';
 import 'package:boxtia_inventory/Screens/Home_Page.dart';
 import 'package:boxtia_inventory/Screens/Item_Page.dart';
-import 'package:boxtia_inventory/Screens/Profile_Page.dart';
-import 'package:boxtia_inventory/Screens/Stock_Page.dart';
 import 'package:boxtia_inventory/services/AppColors.dart';
-
 import 'package:flutter/material.dart';
 import 'package:fluttericon/elusive_icons.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
-
 import 'package:fluttericon/linecons_icons.dart';
-import 'package:fluttericon/mfg_labs_icons.dart';
 import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
-import 'package:fluttericon/zocial_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:popup_menu/popup_menu.dart';
@@ -33,7 +29,7 @@ class Product_Page extends StatefulWidget {
 }
 
 class _Product_PageState extends State<Product_Page> {
-  String _businessName = '';
+
   List<itemModel> _items = [];
 
   ValueNotifier<String> _selectedCategory = ValueNotifier<String>('All');
@@ -42,18 +38,18 @@ class _Product_PageState extends State<Product_Page> {
   TextEditingController textController = TextEditingController();
 
   final GlobalKey _menuKey = GlobalKey();
-  
-  // ignore: unused_field
+
+//  ignore: unused_field
   bool _popupMenuEnabled = true;
   late PopupMenu menu;
 
   @override
   void initState() {
-    _fetchBusinessName();
+
     _fetchItems();
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      //FILTER MENU
+    //^ FILTER MENU
       menu = PopupMenu(
         context: context,
         config: MenuConfig(maxColumn: 3),
@@ -95,18 +91,8 @@ class _Product_PageState extends State<Product_Page> {
   void onDismiss() {
     print('Menu is dismissed');
   }
-  //BUSSINESS NAME
 
-  void _fetchBusinessName() async {
-    final box = await Hive.openBox<userModel>('boxtiadb');
-    List<userModel> users = box.values.toList();
-    if (users.isNotEmpty) {
-      setState(() {
-        _businessName = users[0].bussinessName;
-      });
-    }
-  }
-  //FETCH ITEMS
+//^  FETCH ITEMS
 
   void _fetchItems() async {
     final Box = await Hive.openBox<itemModel>('boxtiaitemdb');
@@ -115,7 +101,8 @@ class _Product_PageState extends State<Product_Page> {
       _items = items;
     });
   }
-  //DELETE ITEMS
+
+//^ DELETE ITEMS
 
   Future<void> deleteItem(int index) async {
     final box = await Hive.openBox<itemModel>('boxtiaitemdb');
@@ -135,68 +122,29 @@ class _Product_PageState extends State<Product_Page> {
         );
         return false;
       },
-      child: Container(
-        color: AppColor.safeArea,
-        child: SafeArea(
-          child: Scaffold(
-            backgroundColor: AppColor.scaffold,
-            //APPBAR
-            appBar: AppBar(
-              shadowColor: Colors.transparent,
-              elevation: 10,
-              backgroundColor: AppColor.appBar,
-              automaticallyImplyLeading: false,
-              title: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  _businessName.isNotEmpty ? _businessName : "BOXTIA",
-                  style: GoogleFonts.goldman(
-                    textStyle: const TextStyle(
-                      color: Colors.cyanAccent,
-                      fontSize: 25,
-                      letterSpacing: -1,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              actions: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            "PRODUCT",
-                            style: GoogleFonts.mogra(
-                              textStyle: const TextStyle(
-                                decorationColor: Colors.tealAccent,
-                                color: Colors.white,
-                                fontSize: 20,
-                                letterSpacing: 1,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              toolbarHeight: 85,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'lib/asset/ScaffoldImage9.jpg',
+              fit: BoxFit.cover,
             ),
+          ),
+         SafeArea(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
 
-            //BODY BUTTON
+//^ APPBAR
 
-            body: Scaffold(backgroundColor: AppColor.scaffold,
+            appBar:appBars("PRODUCTS"),
+
+//^ BODY BUTTON
+
+            body: Scaffold(backgroundColor: Colors.transparent,
               floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
               floatingActionButton: Column(
                 children: [
-                  //SEARCH BAR
+//^ SEARCH BAR
                   AnimSearchBar(
                     animationDurationInMilli: 300,
                     autoFocus: true,
@@ -220,7 +168,7 @@ class _Product_PageState extends State<Product_Page> {
                       _searchKeyword.value = value;
                     },
                   ),
-                  //FILTER BUTTON
+//^ FILTER BUTTON
 
                   Padding(
                     padding: const EdgeInsets.only(left: 360.0, top: 10),
@@ -238,7 +186,7 @@ class _Product_PageState extends State<Product_Page> {
                   ),
                 ],
               ),
-              //MAIN BODY
+//^ MAIN BODY
               body: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: ValueListenableBuilder<String>(
@@ -266,11 +214,12 @@ class _Product_PageState extends State<Product_Page> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
+                              color: AppColor.white
                             ),
                             ),
                           );
                         }
-                        //LIST
+//^ LIST
 
                         return ListView.builder(
                           itemCount: filteredItems.length,
@@ -279,7 +228,8 @@ class _Product_PageState extends State<Product_Page> {
 
                             return Card(
                               shadowColor: Colors.lightBlueAccent,
-                              surfaceTintColor: Colors.lightBlueAccent,
+                              surfaceTintColor: AppColor.white,
+                              color: AppColor.scaffold,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 5,
@@ -294,16 +244,16 @@ class _Product_PageState extends State<Product_Page> {
                                                 item: filteredItems[index],
                                               )),
                                     ).then((_) {
-                                      // Refresh data after editing
+                                    //^  Refresh data after editing
                                       _fetchItems();
                                     });
                                   },
-                                  //IMAGE
+//^ IMAGE
 
                                   leading: SizedBox(
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(15),
-                                      // ignore: unnecessary_null_comparison
+                                    //  ignore: unnecessary_null_comparison
                                       child: item.ItemPicM == null
                                           ? Image.asset(
                                               'lib/asset/no-image.png',
@@ -320,7 +270,7 @@ class _Product_PageState extends State<Product_Page> {
                                             ),
                                     ),
                                   ),
-                                  //TITLE NAME
+//^ TITLE NAME
 
                                   title: Column(
                                     crossAxisAlignment:
@@ -330,9 +280,7 @@ class _Product_PageState extends State<Product_Page> {
                                         item.ItemNameM,
                                         style: GoogleFonts.josefinSans(
                                           textStyle: const TextStyle(
-                                              decorationColor:
-                                                  Colors.tealAccent,
-                                              color: Colors.blue,
+                                              color: AppColor.itemName,
                                               fontWeight: FontWeight.bold,
                                               letterSpacing: -2,
                                               fontSize: 19),
@@ -346,26 +294,27 @@ class _Product_PageState extends State<Product_Page> {
 
                                   subtitle: Row(
                                     children: [
-                                      //RUPEE
+//^ RUPEE
                                       Text(
                                         '\u{20B9}',
                                         style: TextStyle(
-                                            color: Colors.black,
+                                            color: AppColor.white,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      //PRICE
+//^ PRICE
                                       Text(
                                         '${item.PriceM}',
                                         style: TextStyle(
-                                            color: Colors.green,
+                                            color: AppColor.white,
                                             fontWeight: FontWeight.bold),
                                       ),
-
+//^ POP UP MENU
                                       Expanded(
                                         child: Align(
                                           alignment: Alignment.centerRight,
                                           child: PopupMenuButton<int>(
                                             onSelected: (value) {
+//^  BUTTON USE
                                               if (value == 1) {
                                                 Navigator.push(
                                                   context,
@@ -385,6 +334,7 @@ class _Product_PageState extends State<Product_Page> {
                                             itemBuilder:
                                                 (BuildContext context) => [
                                               PopupMenuItem<int>(
+//^ EDIT BUTTON
                                                 value: 1,
                                                 child: Row(
                                                   children: [
@@ -399,6 +349,7 @@ class _Product_PageState extends State<Product_Page> {
                                                 ),
                                               ),
                                               PopupMenuItem<int>(
+//^ DELETE BUTTON
                                                 value: 2,
                                                 child: Row(
                                                   children: [
@@ -429,33 +380,16 @@ class _Product_PageState extends State<Product_Page> {
                 ),
               ),
             ),
-            //FLOATING ACTION BUTTON
+//^ FLOATING ACTION BUTTON
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
             floatingActionButton: Padding(
               padding: const EdgeInsets.only(top: 76.0),
-              child: FloatingActionButton(
-                tooltip: 'add item',
-                heroTag: "addItemButton",
-                splashColor: Colors.lightBlueAccent,
-                elevation: 20,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AddItem()),
-                  ).then((_) {
-                    _fetchItems();
-                  });
-                },
-                child: Icon(
-                  MfgLabs.plus,
-                  size: 25,
-                ),
-                backgroundColor: AppColor.floating
-              ),
+              child:floatingAddItemButton(context),
+
             ),
 
-            //BOTTOM BAR
+//^ BOTTOM BAR
 
             bottomNavigationBar: Padding(
               padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
@@ -465,65 +399,12 @@ class _Product_PageState extends State<Product_Page> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                child: BottomAppBar(
-                  shadowColor: Colors.transparent,
-                  shape: const CircularNotchedRectangle(),
-                  notchMargin: 10.0,
-                  color: AppColor.bottomBar,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      IconButton(
-                        tooltip: 'profile',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Profile_Page(),
-                            ),
-                          );
-                        },
-                        icon: Icon(
-                          Typicons.user_outline,
-                          size: 32,
-                        ),
-                        color: Colors.white,
-                      ),
-                      IconButton(
-                        tooltip: 'stock',
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Stock_Page()));
-                        },
-                        icon: Icon(
-                          FontAwesome5.boxes,
-                          size: 30,
-                        ),
-                        color: Colors.white,
-                      ),
-                      IconButton(
-                        tooltip: 'product',
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Product_Page()));
-                        },
-                        icon: Icon(
-                          Zocial.paypal,
-                          size: 30,
-                        ),
-                        color: Colors.lightGreenAccent,
-                      ),
-                    ],
-                  ),
-                ),
+                child: bottomNavBar(context),
               ),
             ),
           ),
         ),
+        ],
       ),
     );
   }
