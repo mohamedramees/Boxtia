@@ -5,6 +5,7 @@ import 'package:boxtia_inventory/Featurs/FloatingButton.dart';
 import 'package:boxtia_inventory/Featurs/Si_Number.dart';
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/services/AppColors.dart';
+import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -229,14 +230,17 @@ class _InvoicePageState extends State<InvoicePage> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                         //^ NAME
-                                        Text(
-                                          'NAME  :',
-                                          textAlign: TextAlign.start,
-                                          style: GoogleFonts.roboto(
-                                            textStyle: const TextStyle(
-                                              color: AppColor.black,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 10.0),
+                                          child: Text(
+                                            'NAME  :',
+                                            textAlign: TextAlign.start,
+                                            style: GoogleFonts.roboto(
+                                              textStyle: const TextStyle(
+                                                color: AppColor.black,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -291,25 +295,45 @@ class _InvoicePageState extends State<InvoicePage> {
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-                                child: Divider(
-                                  color: Colors.grey,
-                                  ),
+                                child: DottedLine(
+                                  dashColor: Color.fromARGB(255, 118, 118, 118),
+                                )
                               ),
                         //^ ITEMS
                               Padding(
                                 padding: const EdgeInsets.only( left: 10),
-                                child: Text(
-                                  'ITEMS',
-                                  style: GoogleFonts.arvo(
-                                    textStyle: const TextStyle(
-                                      decoration: TextDecoration.underline,
-                                      decorationThickness: 1.5,
-                                      color: AppColor.black,
-                                      fontSize: 18,
-                                      letterSpacing: 0,
-                                      fontWeight: FontWeight.bold,
+                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'ITEMS',
+                                      style: GoogleFonts.arvo(
+                                        textStyle: const TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          decorationThickness: 1.5,
+                                          color: AppColor.black,
+                                          fontSize: 18,
+                                          letterSpacing: 0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 5.0),
+                                      child: Text('AMOUNT',
+                                        style: GoogleFonts.arvo(
+                                        textStyle: const TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          decorationThickness: 1.5,
+                                          color: AppColor.black,
+                                          fontSize: 18,
+                                          letterSpacing: -2,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ),
                         SizedBox(height: 10,),
@@ -318,24 +342,50 @@ class _InvoicePageState extends State<InvoicePage> {
                                   itemCount: _items.length,
                                   itemBuilder: (context, index) {
                                     final item = _items[index];
-                                     //^ PRICE AND QUANTITY CALCULATION
+//^ PRICE AND QUANTITY CALCULATION
 
                             double price = double.tryParse(item.PriceM) ?? 0.0;
                             double total = price * item.QuantityM;
                                     return ListTile(
                          contentPadding: EdgeInsets.symmetric(vertical: 15,horizontal: 10 ),
 
-                                      tileColor: Color.fromARGB(212, 255, 255, 255),
-                                      leading: Text(item.ItemNameM,
-                                      style: GoogleFonts.arvo(
+                                      tileColor: Color.fromARGB(155, 255, 255, 255),
+                                      leading: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(item.ItemNameM,
+                                          style: GoogleFonts.arvo(
+                                          textStyle: const TextStyle(
+                                            color: AppColor.black,
+                                            fontSize: 15,
+                                            letterSpacing: -.8,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                                                              ),
+                                                                              ),
+                                         Text(
+                                              '${item.PriceM} x ${item.QuantityM}',
+
+                                              style: GoogleFonts.arvo(
+                                                textStyle: const TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    trailing:Text('\u{20B9}$total',
+                                       style: GoogleFonts.arvo(
                                       textStyle: const TextStyle(
                                         color: AppColor.black,
                                         fontSize: 15,
                                         letterSpacing: -.8,
                                         fontWeight: FontWeight.bold,
                                       ),
-                                    ),),
-                                    trailing:Text('$total') ,
+                                    ),
+                                    ) ,
                                     );
                                   }),
                                 ),
