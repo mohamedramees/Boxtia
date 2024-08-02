@@ -121,7 +121,7 @@ class _InvoicePageState extends State<InvoicePage> {
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
                           width: 395,
-                          height: 600,
+                          height: 690,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8), color: Color.fromARGB(194, 255, 255, 255)),
                           child: Column(
@@ -293,13 +293,16 @@ class _InvoicePageState extends State<InvoicePage> {
                                   ],
                                 ),
                               ),
+
+                              //^ DOTTED LINE 1ST
+
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
                                 child: DottedLine(
                                   dashColor: Color.fromARGB(255, 118, 118, 118),
                                 )
                               ),
-                        //^ ITEMS
+//^ ITEMS TEXT
                               Padding(
                                 padding: const EdgeInsets.only( left: 10),
                                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -317,6 +320,7 @@ class _InvoicePageState extends State<InvoicePage> {
                                         ),
                                       ),
                                     ),
+//^ AMOUNT TEXT
                                     Padding(
                                       padding: const EdgeInsets.only(right: 5.0),
                                       child: Text('AMOUNT',
@@ -349,10 +353,11 @@ class _InvoicePageState extends State<InvoicePage> {
                                     return ListTile(
                          contentPadding: EdgeInsets.symmetric(vertical: 15,horizontal: 10 ),
 
-                                      tileColor: Color.fromARGB(155, 255, 255, 255),
+                                tileColor: Color.fromARGB(155, 255, 255, 255),
                                       leading: Column(
                                         crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
+//^ ITEM NAME
                                           Text(item.ItemNameM,
                                           style: GoogleFonts.arvo(
                                           textStyle: const TextStyle(
@@ -363,6 +368,7 @@ class _InvoicePageState extends State<InvoicePage> {
                                           ),
                                                                               ),
                                                                               ),
+//^ ITEM PRICE X ITEM COUNT TEXT
                                          Text(
                                               '${item.PriceM} x ${item.QuantityM}',
 
@@ -376,7 +382,9 @@ class _InvoicePageState extends State<InvoicePage> {
                                             ),
                                         ],
                                       ),
-                                    trailing:Text('\u{20B9}$total',
+//^ ITEM TOTAL AMOUNT
+                                    trailing:Text(
+                                      '\u{20B9}$total',
                                        style: GoogleFonts.arvo(
                                       textStyle: const TextStyle(
                                         color: AppColor.black,
@@ -389,6 +397,43 @@ class _InvoicePageState extends State<InvoicePage> {
                                     );
                                   }),
                                 ),
+//^ DOTTED LINE 2ND
+
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                                child: DottedLine(
+                                  dashColor: Color.fromARGB(255, 118, 118, 118),
+                                )
+                              ),
+//^ TOTAL TEXT
+                              Padding(
+                                padding: const EdgeInsets.only(left: 12.0,bottom: 20),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'TOTAL',
+                                     style: GoogleFonts.arvo(
+                                              textStyle: const TextStyle(
+                                                color: AppColor.black,
+                                                fontSize: 18,
+                                                letterSpacing: 0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                    ),
+                                    Text('\u{20B9}0000.00',
+                                     style: GoogleFonts.arvo(
+                                              textStyle: const TextStyle(
+                                                color: AppColor.black,
+                                                fontSize: 18,
+                                                letterSpacing: 0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                    )
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
