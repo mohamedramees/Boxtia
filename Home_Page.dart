@@ -1,14 +1,11 @@
 import 'dart:io';
-import 'package:boxtia_inventory/Featurs/Alert.dart';
 import 'package:boxtia_inventory/Featurs/App_Bar.dart';
 import 'package:boxtia_inventory/Featurs/Bottom_AppBar.dart';
 import 'package:boxtia_inventory/Featurs/FloatingButton.dart';
 import 'package:boxtia_inventory/Featurs/Navigation.dart';
 import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttericon/mfg_labs_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 
 class Home_Page extends StatefulWidget {
   const Home_Page({super.key, required});
@@ -18,14 +15,10 @@ class Home_Page extends StatefulWidget {
 }
 
 class _Home_PageState extends State<Home_Page> {
-  String _businessName = '';
-
   @override
   void initState() {
     super.initState();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -55,16 +48,15 @@ class _Home_PageState extends State<Home_Page> {
       onWillPop: () async {
         exit(0);
       },
-      child: Stack(
-        children: [
+      child: Stack(children: [
 //^ BACKGROUND IMAGE
-          Positioned.fill(
-            child: Image.asset(
-              'lib/asset/ScaffoldImage9.jpg',
-              fit: BoxFit.cover,
-            ),
+        Positioned.fill(
+          child: Image.asset(
+            'lib/asset/ScaffoldImage9.jpg',
+            fit: BoxFit.cover,
           ),
-         SafeArea(
+        ),
+        SafeArea(
           child: Scaffold(
             backgroundColor: Colors.transparent,
 
@@ -104,7 +96,7 @@ class _Home_PageState extends State<Home_Page> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                //GRID IMAGE
+//^ GRID IMAGE
                                 Center(
                                   child: Padding(
                                     padding: const EdgeInsets.only(
@@ -120,15 +112,15 @@ class _Home_PageState extends State<Home_Page> {
                                 SizedBox(
                                   height: 15,
                                 ),
-                                //GRID TEXT
+//^ GRID TEXT
                                 SizedBox(
                                   child: Center(
                                     child: Text(
                                       GText[index],
-                                      // textAlign: TextAlign.center,
+
                                       style: GoogleFonts.arvo(
                                         textStyle: const TextStyle(
-                                            color:AppColor.itemName,
+                                            color: AppColor.darkBlue,
                                             fontSize: 17,
                                             letterSpacing: -.5,
                                             fontWeight: FontWeight.bold),
@@ -147,14 +139,14 @@ class _Home_PageState extends State<Home_Page> {
               ),
             ),
 
-            //FLOATING BUTTON
+//^ FLOATING BUTTON
             floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
             floatingActionButton: Padding(
               padding: const EdgeInsets.only(top: 76.0),
               child: floatingAddItemButton(context),
             ),
 
-            //BOTTOM APP BAR
+//^ BOTTOM APP BAR
 
             bottomNavigationBar: Padding(
               padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
@@ -169,8 +161,7 @@ class _Home_PageState extends State<Home_Page> {
             ),
           ),
         ),
-        ]
-      ),
+      ]),
     );
   }
 
@@ -191,8 +182,7 @@ class _Home_PageState extends State<Home_Page> {
       case 4:
         break;
       case 5:
-        break;
-      case 6:
+      navigationOutOfStock(context);
         break;
       default:
         break;
