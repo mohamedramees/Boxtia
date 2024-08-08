@@ -1,5 +1,6 @@
 import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:boxtia_inventory/Screens/Splash_Sreen.dart';
+import 'package:boxtia_inventory/services/AppColors.dart';
 
 import 'package:flutter/material.dart';
 // import 'package:hive/hive.dart';
@@ -11,10 +12,12 @@ Future<void> main() async {
   await Hive.initFlutter();
   if (!Hive.isAdapterRegistered(userModelAdapter().typeId) &&
       !Hive.isAdapterRegistered(itemModelAdapter().typeId) &&
-      !Hive.isAdapterRegistered(customerModelAdapter().typeId)) {
+      !Hive.isAdapterRegistered(customerModelAdapter().typeId) &&
+      !Hive.isAdapterRegistered(invoiceModelAdapter().typeId)) {
     Hive.registerAdapter(userModelAdapter());
     Hive.registerAdapter(itemModelAdapter());
     Hive.registerAdapter(customerModelAdapter());
+    Hive.registerAdapter(invoiceModelAdapter());
   }
   await Hive.openBox<bool>('userBox');
   runApp(const MyApp());
@@ -28,8 +31,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Boxtia',
       theme: ThemeData(
-        colorScheme: const ColorScheme.light(brightness: Brightness.light)
-            .copyWith(primary: Colors.blue),
+        colorScheme: const ColorScheme.light(brightness: Brightness.light).copyWith(primary: AppColor.darkBlue),
       ),
       home: const Splash_Screen(),
       debugShowCheckedModeBanner: false,
