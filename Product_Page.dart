@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:anim_search_bar/anim_search_bar.dart';
+import 'package:boxtia_inventory/Featurs/Alert.dart';
 import 'package:boxtia_inventory/Featurs/App_Bar.dart';
 import 'package:boxtia_inventory/Featurs/Bottom_AppBar.dart';
 import 'package:boxtia_inventory/Featurs/FloatingButton.dart';
@@ -157,7 +158,7 @@ class _Product_PageState extends State<Product_Page> {
                     ),
                     rtl: true,
                     width: 400,
-                    color: AppColor.floating,
+                    color: AppColor.darkBlue,
                     searchIconColor: Colors.white,
                     textController: textController,
                     onSuffixTap: () {
@@ -175,7 +176,7 @@ class _Product_PageState extends State<Product_Page> {
                     child: FloatingActionButton(
                       key: _menuKey,
                       heroTag: "filterButton",
-                      backgroundColor: AppColor.floating,
+                      backgroundColor: AppColor.darkBlue,
                       onPressed: () {
                         menu.show(widgetKey: _menuKey);
                       },
@@ -244,7 +245,7 @@ class _Product_PageState extends State<Product_Page> {
                                                 item: filteredItems[index],
                                               )),
                                     ).then((_) {
-                                    //^  Refresh data after editing
+//  Refresh data after editing
                                       _fetchItems();
                                     });
                                   },
@@ -280,7 +281,7 @@ class _Product_PageState extends State<Product_Page> {
                                         item.ItemNameM,
                                         style: GoogleFonts.josefinSans(
                                           textStyle: const TextStyle(
-                                              color: AppColor.itemName,
+                                              color: AppColor.darkBlue,
                                               fontWeight: FontWeight.bold,
                                               letterSpacing: -2,
                                               fontSize: 19),
@@ -328,7 +329,8 @@ class _Product_PageState extends State<Product_Page> {
                                                   ),
                                                 );
                                               } else if (value == 2) {
-                                                deleteItem(index);
+                                                deleteItemProduct(
+                                                  context, index, deleteItem);
                                               }
                                             },
                                             itemBuilder:
@@ -399,7 +401,7 @@ class _Product_PageState extends State<Product_Page> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                child: bottomNavBar(context),
+                child: bottomNavBar(context,'product'),
               ),
             ),
           ),
