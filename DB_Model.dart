@@ -1,7 +1,6 @@
 import 'package:hive/hive.dart';
 part 'DB_Model.g.dart';
 
-
 @HiveType(typeId: 0)
 class userModel extends HiveObject {
   @HiveField(0)
@@ -42,6 +41,8 @@ class itemModel extends HiveObject {
   String CountM;
   @HiveField(7)
   int QuantityM;
+  @HiveField(8)
+  String purchaseAmountM;
 
   itemModel({
     required this.ItemPicM,
@@ -52,6 +53,7 @@ class itemModel extends HiveObject {
     required this.BrandM,
     this.CountM = '0',
     this.QuantityM = 0,
+    required this.purchaseAmountM,
   });
   get QuatityM => null;
 }
@@ -62,9 +64,31 @@ class customerModel extends HiveObject {
   String customerNameM;
   @HiveField(1)
   String customerNumberM;
+  @HiveField(2)
+  final List<itemModel> selectedItemsM;
+  @HiveField(3)
+  double sellTotalM;
 
   customerModel({
-    this.customerNameM = '',
-    this.customerNumberM = '',
+    required this.customerNameM,
+    required this.customerNumberM,
+    required this.selectedItemsM,
+    required this.sellTotalM,
   });
+}
+
+@HiveType(typeId: 3)
+class invoiceModel extends HiveObject {
+  @HiveField(0)
+  String invoiceM;
+  @HiveField(1)
+  DateTime invoicedateTimeM;
+  @HiveField(2)
+  double InvoiceTotalAmountM;
+
+  invoiceModel({
+    required this.invoiceM,
+    required this.invoicedateTimeM,
+    required this.InvoiceTotalAmountM
+    });
 }
