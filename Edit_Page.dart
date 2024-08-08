@@ -110,6 +110,7 @@ class _Edit_ItemState extends State<Edit_Item> {
         PriceM: _Iprice,
         ItemPicM: pic ?? '',
         CountM: _countI,
+        purchaseAmountM: ''
       );
 
       await updateItem(itemIndex, updatedItem);
@@ -212,7 +213,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                         padding: const EdgeInsets.only(left: 345.0),
                         child: IconButton(
                             iconSize: 30,
-                            color: AppColor.floating,
+                            color: AppColor.darkBlue,
                             onPressed: () {
                               pickImage();
                             },
@@ -242,7 +243,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                                   helperStyle: TextStyle(color: AppColor.white),
                                   hoverColor: Colors.blue,
                                   filled: true,
-                                  fillColor:AppColor.textFormBorder,
+                                  fillColor:AppColor.darkBlue,
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide.none,
                                     borderRadius: BorderRadius.circular(15.0),
@@ -287,7 +288,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                                   helperStyle: TextStyle(color: AppColor.white),
                                   hoverColor: Colors.blue,
                                   filled: true,
-                                  fillColor:AppColor.textFormBorder,
+                                  fillColor:AppColor.darkBlue,
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide.none,
                                     borderRadius: BorderRadius.circular(15.0),
@@ -325,7 +326,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                             color: Colors.cyanAccent[100],
                           ),
                           decoration: InputDecoration(
-                              fillColor: AppColor.textFormBorder,
+                              fillColor: AppColor.darkBlue,
                               filled: true,
                               hintStyle: TextStyle(color: AppColor.white),
                               suffixIcon: IconButton(
@@ -352,7 +353,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                             color: Colors.cyanAccent[100],
                           ),
                           decoration: InputDecoration(
-                              fillColor: AppColor.textFormBorder,
+                              fillColor: AppColor.darkBlue,
                               filled: true,
                               hintStyle: TextStyle(color: AppColor.white),
                               suffixIcon: IconButton(
@@ -383,7 +384,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                             color: Colors.cyanAccent[100],
                           ),
                           decoration: InputDecoration(
-                              fillColor: AppColor.textFormBorder,
+                              fillColor: AppColor.darkBlue,
                               filled: true,
                               hintStyle: TextStyle(color: AppColor.white),
                               suffixIcon: IconButton(
@@ -420,7 +421,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                               height: 50,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: AppColor.textFormBorder,
+                                color: AppColor.darkBlue,
                               ),
                               child: IconButton(
                                 icon: Icon(
@@ -446,7 +447,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                               height: 55,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: AppColor.textFormBorder,
+                                color: AppColor.darkBlue,
                               ),
                               child: Center(
                                 child: TextFormField(
@@ -479,7 +480,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                               height: 50,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: AppColor.textFormBorder,
+                                color: AppColor.darkBlue,
                               ),
                               child: IconButton(
                                 icon: Icon(
@@ -522,7 +523,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                         fontWeight: FontWeight.bold),
                   ),
                 ),
-                backgroundColor: AppColor.floating,
+                backgroundColor: AppColor.darkBlue,
               ),
             ),
             bottomNavigationBar: Padding(
@@ -533,7 +534,7 @@ class _Edit_ItemState extends State<Edit_Item> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                child: bottomNavBar(context)
+                child: bottomNavBar(context,'editPage')
               ),
             ),
           ),
