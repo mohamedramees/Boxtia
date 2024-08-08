@@ -22,26 +22,27 @@ class _Home_PageState extends State<Home_Page> {
 
   @override
   Widget build(BuildContext context) {
-    //GRID IMAGE
+    //^ GRID IMAGE
 
     final List<Image> GImage = [
       Image.asset('lib/asset/sale.png'),
       Image.asset('lib/asset/stock,home.png'),
       Image.asset('lib/asset/add sale.png'),
-      Image.asset('lib/asset/TodaySale.png'),
       Image.asset('lib/asset/todayPurchase1.png'),
       Image.asset('lib/asset/outof stock.webp'),
+      Image.asset('lib/asset/revenue7.jpg')
+
     ];
 
-    //GRID TEXT
+    //^ GRID TEXT
 
     final List<String> GText = [
-      "Mothly\n  Sales",
+      "  Sales\nInvoice",
       "Total\nStock",
-      " Add\nSales",
-      "Today\n Sales",
+      "Billing",
       "Purchase\n   Report",
-      "Out Of\n Stock"
+      "Out Of\n Stock",
+      "Revenue"
     ];
 
     return WillPopScope(
@@ -117,7 +118,6 @@ class _Home_PageState extends State<Home_Page> {
                                   child: Center(
                                     child: Text(
                                       GText[index],
-
                                       style: GoogleFonts.arvo(
                                         textStyle: const TextStyle(
                                             color: AppColor.darkBlue,
@@ -156,7 +156,7 @@ class _Home_PageState extends State<Home_Page> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                child: bottomNavBar(context),
+                child: bottomNavBar(context,'home'),
               ),
             ),
           ),
@@ -165,24 +165,27 @@ class _Home_PageState extends State<Home_Page> {
     );
   }
 
-  // GRID NAVIGATION
+  //^ GRID NAVIGATION
 
   void homeGridNavigation(int index) {
     switch (index) {
       case 0:
+        navigationSalesReport(context);
         break;
       case 1:
         navigationStock(context);
         break;
       case 2:
-        navigationSales(context);
+        navigationBillingPage(context);
         break;
       case 3:
+        navigationToPurchaseReport(context);
         break;
       case 4:
+        navigationOutOfStock(context);
         break;
-      case 5:
-      navigationOutOfStock(context);
+        case 5:
+        navigationToRevenue(context);
         break;
       default:
         break;
