@@ -2,7 +2,7 @@ import 'package:boxtia_inventory/Model/DB_Model.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-// Functions for USER
+//^ Functions for USER
 
 ValueNotifier<List<userModel>> boxtiadb = ValueNotifier([]);
 
@@ -33,7 +33,8 @@ Future<void> updateUser(userModel user) async {
   }
 }
 
-//Functions for ITEMS
+//^ Functions for ITEMS
+
 ValueNotifier<List<itemModel>> boxtiaitemdb = ValueNotifier([]);
 //ADD ITEM
 
@@ -70,7 +71,7 @@ Future<void> updateItem(int index, itemModel item) async {
 }
 
 
-//Functions for CUSTOMER
+//^ Functions for CUSTOMER
 
 //ADD CUSTOMER
 
@@ -86,3 +87,7 @@ Future<List<customerModel>> getCustomer() async {
   List<customerModel> items = boxtiacustomerdb.values.toList();
   return items;
 }
+
+
+//^ Functions for INVOICE
+
