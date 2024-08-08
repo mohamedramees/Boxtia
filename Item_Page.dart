@@ -116,7 +116,7 @@ class _Item_PageState extends State<Item_Page> {
                       'CATEGORY',
                       style: GoogleFonts.mogra(
                         textStyle: TextStyle(
-                            color: AppColor.textFormBorder,
+                            color: AppColor.darkBlue,
                             fontSize:20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
@@ -135,7 +135,7 @@ class _Item_PageState extends State<Item_Page> {
                         ),
                         decoration: InputDecoration(
                             hintText: 'Category',
-                            fillColor: AppColor.textFormBorder,
+                            fillColor: AppColor.darkBlue,
                             filled: true,
                             hintStyle: TextStyle(color: AppColor.white),
                             border: OutlineInputBorder(
@@ -152,7 +152,7 @@ class _Item_PageState extends State<Item_Page> {
                       'BRAND',
                       style: GoogleFonts.mogra(
                         textStyle: TextStyle(
-                           color: AppColor.textFormBorder,
+                           color: AppColor.darkBlue,
                             fontSize:20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
@@ -171,7 +171,7 @@ class _Item_PageState extends State<Item_Page> {
                         ),
                         decoration: InputDecoration(
                             hintText: 'Brand',
-                            fillColor: AppColor.textFormBorder,
+                            fillColor: AppColor.darkBlue,
                             filled: true,
                             hintStyle: TextStyle(color: AppColor.white),
                             border: OutlineInputBorder(
@@ -188,7 +188,7 @@ class _Item_PageState extends State<Item_Page> {
                       'ITEM NAME',
                       style: GoogleFonts.mogra(
                         textStyle: TextStyle(
-                            color: AppColor.textFormBorder,
+                            color: AppColor.darkBlue,
                             fontSize:20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
@@ -206,7 +206,7 @@ class _Item_PageState extends State<Item_Page> {
                             fontWeight: FontWeight.bold),
                       ),
                       decoration: InputDecoration(
-                          fillColor: AppColor.textFormBorder,
+                          fillColor: AppColor.darkBlue,
                           filled: true,
                           hintStyle: TextStyle(color: AppColor.white),
                           border: OutlineInputBorder(
@@ -222,7 +222,7 @@ class _Item_PageState extends State<Item_Page> {
                       'COLOR',
                       style: GoogleFonts.mogra(
                         textStyle: TextStyle(
-                            color: AppColor.textFormBorder,
+                            color: AppColor.darkBlue,
                             fontSize:20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
@@ -240,7 +240,7 @@ class _Item_PageState extends State<Item_Page> {
                             fontWeight: FontWeight.bold),
                       ),
                       decoration: InputDecoration(
-                          fillColor: AppColor.textFormBorder,
+                          fillColor: AppColor.darkBlue,
                           filled: true,
                           hintStyle: TextStyle(color: AppColor.white),
                           border: OutlineInputBorder(
@@ -256,7 +256,7 @@ class _Item_PageState extends State<Item_Page> {
                       'PRICE',
                       style: GoogleFonts.mogra(
                         textStyle: TextStyle(
-                           color: AppColor.textFormBorder,
+                           color: AppColor.darkBlue,
                             fontSize:20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
@@ -274,7 +274,7 @@ class _Item_PageState extends State<Item_Page> {
                             fontWeight: FontWeight.bold),
                       ),
                       decoration: InputDecoration(
-                        fillColor: AppColor.textFormBorder,
+                        fillColor: AppColor.darkBlue,
                         filled: true,
                         hintStyle: TextStyle(color: AppColor.white),
                         border: OutlineInputBorder(
@@ -291,7 +291,7 @@ class _Item_PageState extends State<Item_Page> {
                       'COUNT',
                       style: GoogleFonts.mogra(
                         textStyle: TextStyle(
-                            color: AppColor.textFormBorder,
+                            color: AppColor.darkBlue,
                             fontSize:20,
                             letterSpacing: 1,
                             fontWeight: FontWeight.bold),
@@ -308,7 +308,7 @@ class _Item_PageState extends State<Item_Page> {
                             fontWeight: FontWeight.bold),
                       ),
                       decoration: InputDecoration(
-                        fillColor: AppColor.textFormBorder,
+                        fillColor: AppColor.darkBlue,
                         filled: true,
                         hintStyle: TextStyle(color: AppColor.white),
                         border: OutlineInputBorder(
@@ -340,7 +340,7 @@ class _Item_PageState extends State<Item_Page> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                child:  bottomNavBar(context),
+                child:  bottomNavBar(context,'itemPage'),
               ),
             ),
           ),
