@@ -3,28 +3,27 @@ import 'package:boxtia_inventory/services/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:fluttericon/octicons_icons.dart';
-import 'package:fluttericon/typicons_icons.dart';
 import 'package:fluttericon/zocial_icons.dart';
 
-BottomAppBar bottomNavBar(BuildContext context) {
+BottomAppBar bottomNavBar(BuildContext context , String currentPage) {
   return BottomAppBar(
     shadowColor: Colors.transparent,
     shape: const CircularNotchedRectangle(),
     notchMargin: 10.0,
-    color: AppColor.bottomBar,
+    color: AppColor.scaffold,
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         IconButton(
           tooltip: 'OutOfStock',
           onPressed: () {
-
+            navigationOutOfStock(context);
           },
           icon: Icon(
             Octicons.stop,
-            size: 32, // Reduced size
+            size: 32,
           ),
-          color: AppColor.white,
+        color: currentPage == 'outOfStock' ? AppColor.blue : AppColor.darkBlue,
         ),
         IconButton(
           tooltip: 'stock',
@@ -35,7 +34,7 @@ BottomAppBar bottomNavBar(BuildContext context) {
             FontAwesome5.boxes,
             size: 30,
           ),
-          color: AppColor.white,
+          color: currentPage == 'stock' ? AppColor.blue : AppColor.darkBlue,
         ),
         IconButton(
           tooltip: 'product',
@@ -44,9 +43,9 @@ BottomAppBar bottomNavBar(BuildContext context) {
           },
           icon: Icon(
             Zocial.paypal,
-            size: 30, // Reduced size
+            size: 30,
           ),
-          color: AppColor.white,
+          color: currentPage == 'product' ? AppColor.blue : AppColor.darkBlue,
         ),
       ],
     ),

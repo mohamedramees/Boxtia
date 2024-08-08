@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttericon/mfg_labs_icons.dart';
 import 'package:fluttericon/octicons_icons.dart';
 
-//FLOATING ADD ITEM
+//^ FLOATING ADD ITEM
 
 FloatingActionButton floatingAddItemButton(BuildContext context) {
   return FloatingActionButton(
@@ -18,10 +18,10 @@ FloatingActionButton floatingAddItemButton(BuildContext context) {
         MfgLabs.plus,
         size: 25,
       ),
-      backgroundColor: AppColor.floating);
+      backgroundColor: AppColor.darkBlue);
 }
 
-//FLOATING TO HOME
+//^ FLOATING TO HOME
 
 FloatingActionButton floatingToHome(BuildContext context) {
   return FloatingActionButton(
@@ -30,9 +30,9 @@ FloatingActionButton floatingToHome(BuildContext context) {
       onPressed: () {
         navigationHome(context);
       },
-      
+
       //HOME ICON
 
       child: Icon(Octicons.home),
-      backgroundColor: AppColor.floating);
+      backgroundColor: AppColor.darkBlue);
 }
