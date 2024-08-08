@@ -54,8 +54,6 @@ class _AddItemState extends State<AddItem> {
 
   int _quantity = 0;
 
-
-
   @override
   void dispose() {
     _countController.dispose();
@@ -85,8 +83,6 @@ class _AddItemState extends State<AddItem> {
     _countController.text = _quantity.toString();
   }
 
-
-
   Future<void> _saveItem(BuildContext context) async {
     String _iCategory = _selectedCategory;
     String _iBrand = _selectedBrand;
@@ -100,37 +96,39 @@ class _AddItemState extends State<AddItem> {
         _iBrand.isNotEmpty &&
         _Iname.isNotEmpty &&
         _IColor.isNotEmpty &&
-         pic != null &&
+        pic != null &&
         _Iprice.isNotEmpty) {
-      itemModel newItem = itemModel(
+      double count = double.tryParse(_countI) ?? 0;
+      double price = double.tryParse(_Iprice) ?? 0;
 
-          CategoryM: _iCategory,
-          BrandM: _iBrand,
-          ItemNameM: _Iname,
-          ColorM: _IColor,
-          PriceM: _Iprice,
-          ItemPicM: pic!,
-          CountM: _countI);
+      double purchaseAmount = count * price;
+      print('sfnsfnfjifjisfjijfjfjfjjfjf000000000000000000000000000000000000000000000000000000000000000000000000000===$purchaseAmount');
+
+      itemModel newItem = itemModel(
+        CategoryM: _iCategory,
+        BrandM: _iBrand,
+        ItemNameM: _Iname,
+        ColorM: _IColor,
+        PriceM: _Iprice,
+        ItemPicM: pic!,
+        CountM: _countI,
+        purchaseAmountM: purchaseAmount.toString(),
+      );
 
       await addItemF(newItem);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.green,
-          shape: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide.none),
+          shape: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
           duration: Duration(seconds: 1),
           content: Text('Item data saved successfully!'),
         ),
       );
 
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => Product_Page()));
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => Product_Page()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            duration: Duration(seconds: 1),
-            content: Text('Please fill in all fields.')),
+        SnackBar(duration: Duration(seconds: 1), content: Text('Please fill in all fields.')),
       );
     }
   }
@@ -140,8 +138,7 @@ class _AddItemState extends State<AddItem> {
 
   Future<void> pickImage() async {
     final imagePicker = ImagePicker();
-    final XFile? pickedImg =
-        await imagePicker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedImg = await imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImg != null) {
       setState(() {
         pic = pickedImg.path;
@@ -149,22 +146,18 @@ class _AddItemState extends State<AddItem> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-
+    return Stack(children: [
 //^ BACKGROUND IMAGE
 
-        Positioned.fill(
-            child: Image.asset(
-              'lib/asset/ScaffoldImage9.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-       SafeArea(
+      Positioned.fill(
+        child: Image.asset(
+          'lib/asset/ScaffoldImage9.jpg',
+          fit: BoxFit.cover,
+        ),
+      ),
+      SafeArea(
         child: Scaffold(
           backgroundColor: AppColor.scaffold,
 
@@ -179,25 +172,21 @@ class _AddItemState extends State<AddItem> {
               child: Container(
                 child: Column(
                   children: [
-                    //IMAGE
+                    //^ IMAGE
                     ClipRRect(
                       borderRadius: BorderRadius.circular(15),
                       child: pic == null
                           ? Image.asset(
                               'lib/asset/no-image.png',
                             )
-                          : Image.file(
-                              alignment: Alignment.center,
-                              width: 500,
-                              height: 250,
-                              File(pic!)),
+                          : Image.file(alignment: Alignment.center, width: 500, height: 250, File(pic!)),
                     ),
                     Padding(
-                      //ICON
+                      //^ ICON
                       padding: const EdgeInsets.only(left: 345.0),
                       child: IconButton(
                           iconSize: 30,
-                          color: AppColor.floating,
+                          color: AppColor.darkBlue,
                           onPressed: () {
                             pickImage();
                           },
@@ -207,26 +196,25 @@ class _AddItemState extends State<AddItem> {
                       height: 20,
                     ),
 
-                    //DROP DOWN CATEGORY
+                    //^ DROP DOWN CATEGORY
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: Theme(
-                        data: Theme.of(context)
-                            .copyWith(canvasColor:AppColor.white),
+                        data: Theme.of(context).copyWith(canvasColor: AppColor.white),
                         child: Container(
                           child: DropdownButtonFormField(
                               dropdownColor: Colors.blueAccent,
-                              iconEnabledColor:AppColor.white,
+                              iconEnabledColor: AppColor.white,
                               iconSize: 35,
                               hint: Text(
                                 'Select A Category',
-                                style: TextStyle(color:AppColor.white),
+                                style: TextStyle(color: AppColor.white),
                               ),
                               decoration: InputDecoration(
-                                helperStyle: TextStyle(color:AppColor.white),
+                                helperStyle: TextStyle(color: AppColor.white),
                                 hoverColor: Colors.blue,
                                 filled: true,
-                                fillColor: AppColor.textFormBorder,
+                                fillColor: AppColor.darkBlue,
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
                                   borderRadius: BorderRadius.circular(15.0),
@@ -237,8 +225,7 @@ class _AddItemState extends State<AddItem> {
                                     value: e,
                                     child: Text(
                                       e,
-                                      style: TextStyle(
-                                          color: Colors.cyanAccent[100]),
+                                      style: TextStyle(color: Colors.cyanAccent[100]),
                                     ));
                               }).toList(),
                               onChanged: (value) {
@@ -250,27 +237,26 @@ class _AddItemState extends State<AddItem> {
                       ),
                     ),
 
-                    //DROP DOWN BRAND
+                    //^  DROP DOWN BRAND
 
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: Theme(
-                        data: Theme.of(context)
-                            .copyWith(canvasColor:AppColor.white),
+                        data: Theme.of(context).copyWith(canvasColor: AppColor.white),
                         child: Container(
                           child: DropdownButtonFormField(
                             dropdownColor: Colors.blueAccent,
-                            iconEnabledColor:AppColor.white,
+                            iconEnabledColor: AppColor.white,
                             iconSize: 35,
                             hint: Text(
                               'Select A Brand',
-                              style: TextStyle(color:AppColor.white),
+                              style: TextStyle(color: AppColor.white),
                             ),
                             decoration: InputDecoration(
-                              helperStyle: TextStyle(color:AppColor.white),
+                              helperStyle: TextStyle(color: AppColor.white),
                               hoverColor: Colors.blue,
                               filled: true,
-                              fillColor: AppColor.textFormBorder,
+                              fillColor: AppColor.darkBlue,
                               border: OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius: BorderRadius.circular(15.0),
@@ -285,7 +271,7 @@ class _AddItemState extends State<AddItem> {
                                         ? TextStyle(
                                             fontSize: 15.0,
                                             fontWeight: FontWeight.bold,
-                                            color:AppColor.white,
+                                            color: AppColor.white,
                                           )
                                         : TextStyle(
                                             color: Colors.cyanAccent[100],
@@ -306,7 +292,7 @@ class _AddItemState extends State<AddItem> {
                         ),
                       ),
                     ),
-                    //ADDING NEW BRAND
+                    //^ ADDING NEW BRAND
 
                     if (_isAddingBrand)
                       Column(
@@ -324,15 +310,15 @@ class _AddItemState extends State<AddItem> {
                               decoration: InputDecoration(
                                   hintText: _addNewBrandName,
                                   filled: true,
-                                  fillColor: AppColor.textFormBorder,
+                                  fillColor: AppColor.darkBlue,
                                   suffixIcon: IconButton(
                                     icon: Icon(
                                       Icons.add,
-                                      color:AppColor.white,
+                                      color: AppColor.white,
                                     ),
                                     onPressed: _addNewBrand,
                                   ),
-                                  hintStyle: TextStyle(color:AppColor.white),
+                                  hintStyle: TextStyle(color: AppColor.white),
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide.none,
                                     borderRadius: BorderRadius.circular(15),
@@ -342,7 +328,7 @@ class _AddItemState extends State<AddItem> {
                         ],
                       ),
 
-                    //ITEM NAME
+                    //^ ITEM NAME
 
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -357,16 +343,16 @@ class _AddItemState extends State<AddItem> {
                         ),
                         decoration: InputDecoration(
                             hintText: _itemName,
-                            fillColor: AppColor.textFormBorder,
+                            fillColor: AppColor.darkBlue,
                             filled: true,
-                            hintStyle: TextStyle(color:AppColor.white),
+                            hintStyle: TextStyle(color: AppColor.white),
                             suffixIcon: IconButton(
                               onPressed: () {
                                 _InameClear();
                               },
                               icon: Icon(
                                 Icons.clear,
-                                color:AppColor.white,
+                                color: AppColor.white,
                               ),
                             ),
                             border: OutlineInputBorder(
@@ -375,7 +361,7 @@ class _AddItemState extends State<AddItem> {
                             )),
                       ),
                     ),
-                    //COLOR
+                    //^ COLOR
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
@@ -386,16 +372,16 @@ class _AddItemState extends State<AddItem> {
                         ),
                         decoration: InputDecoration(
                           hintText: _color,
-                          fillColor: AppColor.textFormBorder,
+                          fillColor: AppColor.darkBlue,
                           filled: true,
-                          hintStyle: TextStyle(color:AppColor.white),
+                          hintStyle: TextStyle(color: AppColor.white),
                           suffixIcon: IconButton(
                             onPressed: () {
                               _colorClear();
                             },
                             icon: Icon(
                               Icons.clear,
-                              color:AppColor.white,
+                              color: AppColor.white,
                             ),
                           ),
                           border: OutlineInputBorder(
@@ -405,7 +391,7 @@ class _AddItemState extends State<AddItem> {
                         ),
                       ),
                     ),
-                    //PRICE
+                    //^ PRICE
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
@@ -420,16 +406,16 @@ class _AddItemState extends State<AddItem> {
                         ),
                         decoration: InputDecoration(
                           hintText: _price,
-                          fillColor: AppColor.textFormBorder,
+                          fillColor: AppColor.darkBlue,
                           filled: true,
-                          hintStyle: TextStyle(color:AppColor.white),
+                          hintStyle: TextStyle(color: AppColor.white),
                           suffixIcon: IconButton(
                             onPressed: () {
                               _priceClear();
                             },
                             icon: Icon(
                               Icons.clear,
-                              color:AppColor.white,
+                              color: AppColor.white,
                             ),
                           ),
                           border: OutlineInputBorder(
@@ -440,15 +426,13 @@ class _AddItemState extends State<AddItem> {
                       ),
                     ),
 
-                    //COUNT
+                    //^ COUNT
                     Text(
                       'count',
-                      style: GoogleFonts.robotoSlab(
-                          color: Colors.blue,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
+                      style:
+                          GoogleFonts.robotoSlab(color: AppColor.darkBlue, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-      //COUNT --
+                    //^ COUNT --
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: Row(
@@ -459,33 +443,32 @@ class _AddItemState extends State<AddItem> {
                             height: 50,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: AppColor.textFormBorder,
+                              color: AppColor.darkBlue,
                             ),
                             child: IconButton(
                               icon: Icon(
                                 FontAwesome5.minus,
-                                color:AppColor.white,
+                                color: AppColor.white,
                                 size: 27,
                               ),
                               onPressed: () {
                                 setState(() {
                                   if (_quantity > 0) {
                                     _quantity--;
-                                    _countController.text =
-                                        _quantity.toString();
+                                    _countController.text = _quantity.toString();
                                   }
                                 });
                               },
                             ),
                           ),
-                          //COUNT TEXT FIELD
+                          //^ COUNT TEXT FIELD
 
                           Container(
                             width: 100,
                             height: 55,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color:AppColor.textFormBorder,
+                              color: AppColor.darkBlue,
                             ),
                             child: Center(
                               child: TextFormField(
@@ -493,9 +476,7 @@ class _AddItemState extends State<AddItem> {
                                   LengthLimitingTextInputFormatter(3),
                                 ],
                                 style: GoogleFonts.robotoSlab(
-                                    color:AppColor.white,
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold),
+                                    color: AppColor.white, fontSize: 25, fontWeight: FontWeight.bold),
                                 controller: _countController,
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.center,
@@ -511,19 +492,19 @@ class _AddItemState extends State<AddItem> {
                               ),
                             ),
                           ),
-                          //COUNT ++
+                          //^ COUNT ++
 
                           Container(
                             width: 60,
                             height: 50,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color:AppColor.textFormBorder,
+                              color: AppColor.darkBlue,
                             ),
                             child: IconButton(
                               icon: Icon(
                                 FontAwesome5.plus,
-                                color:AppColor.white,
+                                color: AppColor.white,
                                 size: 27,
                               ),
                               onPressed: () {
@@ -543,7 +524,7 @@ class _AddItemState extends State<AddItem> {
             ),
           ),
 
-        //FLOATING BUTTON
+          //^ FLOATING BUTTON
 
           floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
           floatingActionButton: Padding(
@@ -558,17 +539,14 @@ class _AddItemState extends State<AddItem> {
                 'SAVE',
                 style: GoogleFonts.odibeeSans(
                   textStyle: TextStyle(
-                      color: Colors.cyanAccent[100],
-                      fontSize: 15,
-                      letterSpacing: 1.5,
-                      fontWeight: FontWeight.bold),
+                      color: Colors.cyanAccent[100], fontSize: 15, letterSpacing: 1.5, fontWeight: FontWeight.bold),
                 ),
               ),
-              backgroundColor: AppColor.floating,
+              backgroundColor: AppColor.darkBlue,
             ),
           ),
 
-          //BOTTOM APP BAR
+          //^ BOTTOM APP BAR
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
             child: ClipPath(
@@ -577,12 +555,11 @@ class _AddItemState extends State<AddItem> {
                   borderRadius: BorderRadius.circular(15),
                 ),
               ),
-              child: bottomNavBar(context),
+              child: bottomNavBar(context,'addItem'),
             ),
           ),
         ),
       ),
-      ]
-    );
+    ]);
   }
 }
