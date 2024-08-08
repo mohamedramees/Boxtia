@@ -21,12 +21,14 @@ class _Stock_PageState extends State<Stock_Page> {
   List<itemModel> _items = [];
   bool _isAscending = true;
 
+//^ INISTATE
   @override
   void initState() {
     super.initState();
     _fetchItems();
   }
 
+//^ FETCH ITEMS
 
   void _fetchItems() async {
     final box = await Hive.openBox<itemModel>('boxtiaitemdb');
@@ -71,7 +73,7 @@ class _Stock_PageState extends State<Stock_Page> {
           ),
          SafeArea(
           child: Scaffold(
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColor.scaffold,
 
 //^ APP BAR
             appBar: appBarStock(_sortItems),
@@ -109,7 +111,7 @@ class _Stock_PageState extends State<Stock_Page> {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.josefinSans(
                             textStyle: const TextStyle(
-                                color: AppColor.itemName,
+                                color: AppColor.darkBlue,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: -1,
                                 fontSize: 22),
@@ -156,12 +158,14 @@ class _Stock_PageState extends State<Stock_Page> {
                 },
               ),
             ),
+//^ FLOATING BUTTON
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
             floatingActionButton: Padding(
               padding: const EdgeInsets.only(top: 76.0),
               child: floatingAddItemButton(context),
             ),
+//^ BOTTOM NAV BAR
             bottomNavigationBar: Padding(
               padding: const EdgeInsets.only(right: 85.0, bottom: 4.0),
               child: ClipPath(
@@ -170,7 +174,7 @@ class _Stock_PageState extends State<Stock_Page> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                child: bottomNavBar(context),
+                child: bottomNavBar(context ,'stock',),
               ),
             ),
           ),
