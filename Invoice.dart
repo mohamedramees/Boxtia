@@ -1,6 +1,5 @@
 import 'package:boxtia_inventory/Featurs/Alert.dart';
 import 'package:boxtia_inventory/Featurs/App_Bar.dart';
-import 'package:boxtia_inventory/Featurs/Bill_Image.dart';
 import 'package:boxtia_inventory/Featurs/Bottom_AppBar.dart';
 import 'package:boxtia_inventory/Featurs/Date_Time.dart';
 import 'package:boxtia_inventory/Featurs/FloatingButton.dart';
@@ -73,7 +72,7 @@ class _InvoicePageState extends State<InvoicePage> {
         //^ BACKGROUND IMAGE
         Positioned.fill(
           child: Image.asset(
-            'lib/asset/ScaffoldImage9.jpg',
+            'lib/asset/6.jpg',
             fit: BoxFit.cover,
           ),
         ),
